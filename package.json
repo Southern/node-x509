@@ -1,0 +1,11 @@
+{
+  "name": "x509",
+  "version": "0.0.1",
+  "description": "Simple X509 certificate parser.",
+  "author": "Colton Baker",
+  "main": "./build/Release/x509",
+  "scripts": {
+    "preinstall": "make"
+  },
+  "license": "MIT"
+}
