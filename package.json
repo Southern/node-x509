@@ -4,6 +4,10 @@
   "description": "Simple X509 certificate parser.",
   "author": "Colton Baker",
   "main": "./build/Release/x509",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/Southern/node-x509"
+  },
   "scripts": {
     "preinstall": "make"
   },
