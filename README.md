@@ -3,9 +3,6 @@ node-x509
 
 Simple X509 certificate parser.
 
-## Prerequisites
-- Must have OpenSSL installed with `brew install openssl` on OSX. You *DO NOT* have to override the system. Just as long as you install from brew, you're good. This is to prevent the compiler from throwing a bunch of deprecation warnings, compliments of Apple.
-
 ## Usage
 Reading from a file:
 ```js
