@@ -7,10 +7,19 @@ Simple X509 certificate parser.
 - Must have OpenSSL installed with `brew install openssl` on OSX. You *DO NOT* have to override the system. Just as long as you install from brew, you're good. This is to prevent the compiler from throwing a bunch of deprecation warnings, compliments of Apple.
 
 ## Usage
+Reading from a file:
 ```js
 var x509 = require('x509');
 
 var issuer = x509.getIssuer(__dirname + '/certs/your.crt');
+```
+
+Reading from a string:
+```js
+var fs = require('fs'),
+    x509 = require('x509');
+
+var issuer = x509.getIssuer(fs.readFileSync('./certs/your.crt').toString());
 ```
 
 ## Methods
