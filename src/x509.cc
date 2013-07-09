@@ -115,47 +115,7 @@ Handle<Object> parse_cert(const Arguments &args) {
 
 Handle<String> parse_date(char *date) {
   HandleScope scope;
-  char current[5];
-  char *theDate = (char*) malloc(sizeof(char) * 30);
-  X509_DATE *xdate = (X509_DATE*) malloc(sizeof(X509_DATE));
-  int i;
-
-  for (i = 0; i < (int) strlen(date) - 1; i += 2) {
-    strncpy(current, &date[i], 2);
-
-    switch (i) {
-      case 0:
-        sprintf(xdate->year, "%s", current);
-        break;
-
-      case 2:
-        sprintf(xdate->month, "%s", current);
-        break;
-
-      case 4:
-        sprintf(xdate->day, "%s", current);
-        break;
-
-      case 6:
-        sprintf(xdate->hours, "%s", current);
-        break;
-
-      case 8:
-        sprintf(xdate->minutes, "%s", current);
-        break;
-
-      case 10:
-        sprintf(xdate->seconds, "%s", current);
-        break;
-    }
-  }
-
-  sprintf(theDate, "%s/%s/20%s %s:%s:%s GMT", xdate->month, xdate->day, xdate->year, xdate->hours, xdate->minutes, xdate->seconds);
-
-  free(xdate);
-  free(theDate);
-
-  return scope.Close(String::New(theDate));
+  return scope.Close(String::New(date));
 }
 
 Handle<Object> parse_name(X509_NAME *subject) {
