@@ -12,6 +12,5 @@
 using namespace v8;
 
 void init(Handle<Object> exports);
-Handle<Value> setupExports(Handle<Object> exports);
 
 #endif
