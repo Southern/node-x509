@@ -1,4 +1,4 @@
-var x509 = require('../build/Release/x509'),
+var x509 = require('../lib/x509'),
     fs = require('fs'),
     path = require('path');
 
