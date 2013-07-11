@@ -1,7 +1,7 @@
 #ifndef __x509_h
 #define __x509_h
 
-#include <string>
+#include <cstring>
 
 // Include header for addon version, node/v8 inclusions, etc.
 #include <addon.h>
