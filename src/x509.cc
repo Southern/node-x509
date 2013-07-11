@@ -155,6 +155,7 @@ Handle<Object> parse_name(X509_NAME *subject) {
   return scope.Close(cert);
 }
 
+// Public cert parser needs to have Handle<Value> rather than Handle<Object>
 Handle<Value> public_parse_cert(const Arguments &args) {
   HandleScope scope;
 
