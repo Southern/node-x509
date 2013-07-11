@@ -132,8 +132,8 @@ Handle<String> parse_date(char *date) {
   output = String::Concat(output, String::Concat(String::New("20"), dateArray->Get(0)->ToString()));
   output = String::Concat(output, String::New(" "));
   output = String::Concat(output, String::Concat(dateArray->Get(3)->ToString(), String::New(":")));
-  output = String::Concat(output, String::Concat(dateArray->Get(3)->ToString(), String::New(":")));
-  output = String::Concat(output, String::Concat(dateArray->Get(3)->ToString(), String::New(" GMT")));
+  output = String::Concat(output, String::Concat(dateArray->Get(4)->ToString(), String::New(":")));
+  output = String::Concat(output, String::Concat(dateArray->Get(5)->ToString(), String::New(" GMT")));
 
   return scope.Close(output);
 }
