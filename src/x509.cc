@@ -115,47 +115,27 @@ Handle<Object> parse_cert(const Arguments &args) {
 
 Handle<String> parse_date(char *date) {
   HandleScope scope;
-  char current[5];
-  char *theDate = (char*) malloc(sizeof(char) * 30);
-  X509_DATE *xdate = (X509_DATE*) malloc(sizeof(X509_DATE));
+  char current[3];
   int i;
+  Handle<Array> dateArray = Array::New();
+  Handle<String> output = String::New("");
 
   for (i = 0; i < (int) strlen(date) - 1; i += 2) {
     strncpy(current, &date[i], 2);
+    current[2] = '\0';
 
-    switch (i) {
-      case 0:
-        sprintf(xdate->year, "%s", current);
-        break;
-
-      case 2:
-        sprintf(xdate->month, "%s", current);
-        break;
-
-      case 4:
-        sprintf(xdate->day, "%s", current);
-        break;
-
-      case 6:
-        sprintf(xdate->hours, "%s", current);
-        break;
-
-      case 8:
-        sprintf(xdate->minutes, "%s", current);
-        break;
-
-      case 10:
-        sprintf(xdate->seconds, "%s", current);
-        break;
-    }
+    dateArray->Set((i / 2), String::New(current));
   }
 
-  sprintf(theDate, "%s/%s/20%s %s:%s:%s GMT", xdate->month, xdate->day, xdate->year, xdate->hours, xdate->minutes, xdate->seconds);
+  output = String::Concat(output, String::Concat(dateArray->Get(1)->ToString(), String::New("/")));
+  output = String::Concat(output, String::Concat(dateArray->Get(2)->ToString(), String::New("/")));
+  output = String::Concat(output, String::Concat(String::New("20"), dateArray->Get(0)->ToString()));
+  output = String::Concat(output, String::New(" "));
+  output = String::Concat(output, String::Concat(dateArray->Get(3)->ToString(), String::New(":")));
+  output = String::Concat(output, String::Concat(dateArray->Get(3)->ToString(), String::New(":")));
+  output = String::Concat(output, String::Concat(dateArray->Get(3)->ToString(), String::New(" GMT")));
 
-  free(xdate);
-  free(theDate);
-
-  return scope.Close(String::New(theDate));
+  return scope.Close(output);
 }
 
 Handle<Object> parse_name(X509_NAME *subject) {
