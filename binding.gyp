@@ -1,4 +1,7 @@
 {
+  'includes': [
+    'build/version.gypi'
+  ],
   'targets': [
     {
       'target_name': 'x509',

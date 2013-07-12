@@ -1,8 +1,6 @@
 #ifndef __addon_h
 #define __addon_h
 
-#define VERSION "0.0.1"
-
 #include <cstdlib>
 #include <cstdio>
 
