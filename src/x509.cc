@@ -84,7 +84,7 @@ Handle<Object> parse_cert(const Arguments &args) {
   exports->Set(String::NewSymbol("notBefore"), parse_date((char*) ASN1_STRING_data(X509_get_notBefore(cert))));
   exports->Set(String::NewSymbol("notAfter"), parse_date((char*) ASN1_STRING_data(X509_get_notAfter(cert))));
 
-  Handle<Array> altNames(Array::New());
+  Local<Array> altNames(Array::New());
   STACK_OF(GENERAL_NAME) *names = NULL;
   int i;
 
@@ -117,7 +117,7 @@ Handle<String> parse_date(char *date) {
   HandleScope scope;
   char current[3];
   int i;
-  Handle<Array> dateArray = Array::New();
+  Local<Array> dateArray = Array::New();
   Handle<String> output = String::New("");
 
   for (i = 0; i < (int) strlen(date) - 1; i += 2) {
