@@ -8,7 +8,7 @@ void init(Handle<Object> exports) {
   exports->Set(String::NewSymbol("getAltNames"), FunctionTemplate::New(get_altnames)->GetFunction());
   exports->Set(String::NewSymbol("getSubject"), FunctionTemplate::New(get_subject)->GetFunction());
   exports->Set(String::NewSymbol("getIssuer"), FunctionTemplate::New(get_issuer)->GetFunction());
-  exports->Set(String::NewSymbol("parseCert"), FunctionTemplate::New(public_parse_cert)->GetFunction());
+  exports->Set(String::NewSymbol("parseCert"), FunctionTemplate::New(parse_cert)->GetFunction());
 }
 
 NODE_MODULE(x509, init)

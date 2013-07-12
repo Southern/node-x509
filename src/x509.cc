@@ -4,27 +4,27 @@ using namespace v8;
 
 Handle<Value> get_altnames(const Arguments &args) {
   HandleScope scope;
-  Handle<Object> exports(parse_cert(args));
+  Handle<Object> exports = Handle<Object>::Cast(parse_cert(args));
 
   return scope.Close(exports->Get(String::NewSymbol("altNames")));
 }
 
 Handle<Value> get_subject(const Arguments &args) {
   HandleScope scope;
-  Handle<Object> exports(parse_cert(args));
+  Handle<Object> exports = Handle<Object>::Cast(parse_cert(args));
 
   return scope.Close(exports->Get(String::NewSymbol("subject")));
 }
 
 Handle<Value> get_issuer(const Arguments &args) {
   HandleScope scope;
-  Handle<Object> exports(parse_cert(args));
+  Handle<Object> exports = Handle<Object>::Cast(parse_cert(args));
 
   return scope.Close(exports->Get(String::NewSymbol("issuer")));
 }
 
 // Where everything is actually handled
-Handle<Object> parse_cert(const Arguments &args) {
+Handle<Value> parse_cert(const Arguments &args) {
   HandleScope scope;
   Handle<Object> exports(Object::New());
   X509 *cert;
@@ -110,7 +110,7 @@ Handle<Object> parse_cert(const Arguments &args) {
 
   exports->Set(String::NewSymbol("altNames"), altNames);
 
-  return scope.Close(exports);
+  return scope.Close(Handle<Value>::Cast(exports));
 }
 
 Handle<String> parse_date(char *date) {
@@ -153,11 +153,4 @@ Handle<Object> parse_name(X509_NAME *subject) {
     cert->Set(String::NewSymbol(buf), String::New((const char*) value));
   }
   return scope.Close(cert);
-}
-
-// Public cert parser needs to have Handle<Value> rather than Handle<Object>
-Handle<Value> public_parse_cert(const Arguments &args) {
-  HandleScope scope;
-
-  return scope.Close(parse_cert(args));
 }
