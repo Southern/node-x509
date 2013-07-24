@@ -110,7 +110,7 @@ Handle<Value> parse_cert(const Arguments &args) {
 
   exports->Set(String::NewSymbol("altNames"), altNames);
 
-  return scope.Close(Handle<Value>::Cast(exports));
+  return scope.Close(exports);
 }
 
 Handle<Value> parse_date(char *date) {
