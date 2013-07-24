@@ -113,12 +113,13 @@ Handle<Value> parse_cert(const Arguments &args) {
   return scope.Close(Handle<Value>::Cast(exports));
 }
 
-Handle<String> parse_date(char *date) {
+Handle<Value> parse_date(char *date) {
   HandleScope scope;
   char current[3];
   int i;
   Local<Array> dateArray = Array::New();
-  Handle<String> output = String::New("");
+  Local<String> output = String::New("");
+  Local<Value> args[1];
 
   for (i = 0; i < (int) strlen(date) - 1; i += 2) {
     strncpy(current, &date[i], 2);
@@ -135,7 +136,9 @@ Handle<String> parse_date(char *date) {
   output = String::Concat(output, String::Concat(dateArray->Get(4)->ToString(), String::New(":")));
   output = String::Concat(output, String::Concat(dateArray->Get(5)->ToString(), String::New(" GMT")));
 
-  return scope.Close(output);
+  args[0] = output;
+
+  return scope.Close(Context::GetCurrent()->Global()->Get(String::New("Date"))->ToObject()->CallAsConstructor(1, args));
 }
 
 Handle<Object> parse_name(X509_NAME *subject) {

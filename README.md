@@ -105,8 +105,8 @@ cert = { subject:
      localityName: 'Salford',
      organizationName: 'COMODO CA Limited',
      commonName: 'COMODO High-Assurance Secure Server CA' },
-  notBefore: '10/29/2012 00:00:00 GMT',
-  notAfter: '11/26/2014 23:59:59 GMT',
+  notBefore: Sun Oct 28 2012 20:00:00 GMT-0400 (EDT),
+  notAfter: Wed Nov 26 2014 18:59:59 GMT-0500 (EST),
   altNames: [ '*.nodejitsu.com', 'nodejitsu.com' ] }
 */
 ```
@@ -118,10 +118,10 @@ var x509 = require('x509'),
     cert = x509.parseCert('yourcert.crt'),
     date = new Date();
 
-if (new Date(cert.notBefore) > date) {
+if (cert.notBefore > date) {
   // Certificate isn't active yet.
 }
-if (new Date(cert.notAfter) < date) {
+if (cert.notAfter < date) {
   // Certificate has expired.
 }
 ```
