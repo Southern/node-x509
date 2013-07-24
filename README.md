@@ -111,6 +111,21 @@ cert = { subject:
 */
 ```
 
+## Examples
+Checking the date to make sure the certificate is active:
+```js
+var x509 = require('x509'),
+    cert = x509.parseCert('yourcert.crt'),
+    date = new Date();
+
+if (new Date(cert.notBefore) > date) {
+  // Certificate isn't active yet.
+}
+if (new Date(cert.notAfter) < date) {
+  // Certificate has expired.
+}
+```
+
 ## License
 Copyright (c) 2013 Colton Baker
 
