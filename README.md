@@ -1,7 +1,7 @@
 node-x509
 =========
 
-[![Build Status](https://secure.travis-ci.org/Southern/node-x509)](http://travis-ci.org/Southern/node-x509)
+[![Build Status](https://secure.travis-ci.org/Southern/node-x509.png)](http://travis-ci.org/Southern/node-x509)
 [![NPM version](https://badge.fury.io/js/x509.png)](http://badge.fury.io/js/x509)
 
 Simple X509 certificate parser.
