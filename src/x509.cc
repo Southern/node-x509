@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include <x509.h>
 
 using namespace v8;

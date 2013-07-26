@@ -1,3 +1,6 @@
+#include <cstdlib>
+#include <cstdio>
+
 #include <addon.h>
 #include <x509.h>
 
