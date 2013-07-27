@@ -4,6 +4,55 @@
 
 using namespace v8;
 
+#if NODE_VERSION_AT_LEAST(0, 11, 3)
+/*
+ * Code for 0.11.3 and higher.
+ */
+void get_altnames(const FunctionCallbackInfo<Value> &args) {
+  Local<Object> exports = try_parse(parse_args(args))->ToObject();
+  args.GetReturnValue().Set(exports->Get(String::NewSymbol("altNames")));
+}
+
+void get_subject(const FunctionCallbackInfo<Value> &args) {
+  Local<Object> exports = try_parse(parse_args(args))->ToObject();
+  args.GetReturnValue().Set(exports->Get(String::NewSymbol("subject")));
+}
+
+void get_issuer(const FunctionCallbackInfo<Value> &args) {
+  Local<Object> exports = try_parse(parse_args(args))->ToObject();
+  args.GetReturnValue().Set(exports->Get(String::NewSymbol("issuer")));
+}
+
+char* parse_args(const FunctionCallbackInfo<Value> &args) {
+  if (args.Length() == 0) {
+    ThrowException(Exception::Error(String::New("Must provide a certificate file.")));
+    return NULL;
+  }
+
+  if (!args[0]->IsString()) {
+    ThrowException(Exception::TypeError(String::New("Certificate must be a string.")));
+    return NULL;
+  }
+
+  if (args[0]->ToString()->Length() == 0) {
+    ThrowException(Exception::TypeError(String::New("Certificate argument provided, but left blank.")));
+    return NULL;
+  }
+
+  char *value = (char*) malloc(sizeof(char*) * args[0]->ToString()->Length());
+  sprintf(value, "%s", *String::Utf8Value(args[0]->ToString()));
+  return value;
+}
+
+void parse_cert(const FunctionCallbackInfo<Value> &args) {
+  Local<Object> exports = try_parse(parse_args(args))->ToObject();
+  args.GetReturnValue().Set(exports);
+}
+
+#else
+/*
+ * Code for 0.11.2 and lower.
+ */
 Handle<Value> get_altnames(const Arguments &args) {
   HandleScope scope;
   Handle<Object> exports = Handle<Object>::Cast(parse_cert(args));
@@ -25,30 +74,41 @@ Handle<Value> get_issuer(const Arguments &args) {
   return scope.Close(exports->Get(String::NewSymbol("issuer")));
 }
 
-// Where everything is actually handled
 Handle<Value> parse_cert(const Arguments &args) {
   HandleScope scope;
-  Handle<Object> exports(Object::New());
-  X509 *cert;
 
   if (args.Length() == 0) {
     ThrowException(Exception::Error(String::New("Must provide a certificate file.")));
-    return scope.Close(exports);
+    return scope.Close(Undefined());
   }
 
   if (!args[0]->IsString()) {
     ThrowException(Exception::TypeError(String::New("Certificate must be a string.")));
-    return scope.Close(exports);
+    return scope.Close(Undefined());
   }
 
   if (args[0]->ToString()->Length() == 0) {
     ThrowException(Exception::TypeError(String::New("Certificate argument provided, but left blank.")));
-    return scope.Close(exports);
+    return scope.Close(Undefined());
   }
 
   String::Utf8Value value(args[0]);
+  return scope.Close(try_parse(*value));
+}
+#endif // NODE_VERSION_AT_LEAST
+
+
+
+/*
+ * This is where everything is handled for both -0.11.2 and 0.11.3+.
+ */
+Handle<Value> try_parse(char *data) {
+  HandleScope scope;
+  Handle<Object> exports = Object::New();
+  X509 *cert;
+
   BIO *bio = BIO_new(BIO_s_mem());
-  int result = BIO_puts(bio, *value);
+  int result = BIO_puts(bio, data);
 
   if (result == -2) {
     ThrowException(Exception::Error(String::New("BIO doesn't support BIO_puts.")));
@@ -67,7 +127,7 @@ Handle<Value> parse_cert(const Arguments &args) {
     bio = BIO_new(BIO_s_file());
 
     // If raw read fails, try reading the input as a filename.
-    if (!BIO_read_filename(bio, *value)) {
+    if (!BIO_read_filename(bio, data)) {
       ThrowException(Exception::Error(String::New("File doesn't exist.")));
       return scope.Close(exports);
     }
@@ -111,6 +171,10 @@ Handle<Value> parse_cert(const Arguments &args) {
   }
 
   exports->Set(String::NewSymbol("altNames"), altNames);
+
+#if NODE_VERSION_AT_LEAST(0, 11, 3)
+  free(data);
+#endif
 
   return scope.Close(exports);
 }
@@ -163,13 +227,13 @@ Handle<Object> parse_name(X509_NAME *subject) {
 // Fix for missing fields in OpenSSL.
 char *real_name(char *data) {
   if (strcmp(data, "1.3.6.1.4.1.311.60.2.1.1") == 0)
-    sprintf(data, "%s", "jurisdictionOfIncorpationLocalityName");
+    return (char*) "jurisdictionOfIncorpationLocalityName";
 
   if (strcmp(data, "1.3.6.1.4.1.311.60.2.1.2") == 0)
-    sprintf(data, "%s", "jurisdictionOfIncorporationStateOrProvinceName");
+    return (char*) "jurisdictionOfIncorporationStateOrProvinceName";
 
   if (strcmp(data, "1.3.6.1.4.1.311.60.2.1.3") == 0)
-    sprintf(data, "%s", "jurisdictionOfIncorporationCountryName");
+    return (char*) "jurisdictionOfIncorporationCountryName";
 
   return data;
 }
