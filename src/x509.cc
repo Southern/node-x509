@@ -155,7 +155,21 @@ Handle<Object> parse_name(X509_NAME *subject) {
     entry = X509_NAME_ENTRY_get_object(X509_NAME_get_entry(subject, i));
     nid = OBJ_obj2txt(buf, 255, entry, 0);
     value = ASN1_STRING_data(X509_NAME_ENTRY_get_data(X509_NAME_get_entry(subject, i)));
-    cert->Set(String::NewSymbol(buf), String::New((const char*) value));
+    cert->Set(String::NewSymbol(real_name(buf)), String::New((const char*) value));
   }
   return scope.Close(cert);
+}
+
+// Fix for missing fields in OpenSSL.
+char *real_name(char *data) {
+  if (strcmp(data, "1.3.6.1.4.1.311.60.2.1.1") == 0)
+    sprintf(data, "%s", "jurisdictionOfIncorpationLocalityName");
+
+  if (strcmp(data, "1.3.6.1.4.1.311.60.2.1.2") == 0)
+    sprintf(data, "%s", "jurisdictionOfIncorporationStateOrProvinceName");
+
+  if (strcmp(data, "1.3.6.1.4.1.311.60.2.1.3") == 0)
+    sprintf(data, "%s", "jurisdictionOfIncorporationCountryName");
+
+  return data;
 }
