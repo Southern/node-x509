@@ -4,7 +4,7 @@
 
 using namespace v8;
 
-#if NODE_VERSION_AT_LEAST(0, 11, 3)
+#if NODE_VERSION_AT_LEAST(0, 11, 3) && !defined(__linux__)
 /*
  * Code for 0.11.3 and higher.
  */
@@ -172,7 +172,7 @@ Handle<Value> try_parse(char *data) {
 
   exports->Set(String::NewSymbol("altNames"), altNames);
 
-#if NODE_VERSION_AT_LEAST(0, 11, 3)
+#if NODE_VERSION_AT_LEAST(0, 11, 3) && !defined(__linux__)
   free(data);
 #endif
 
