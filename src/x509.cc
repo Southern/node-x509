@@ -9,17 +9,17 @@ using namespace v8;
  * Code for 0.11.3 and higher.
  */
 void get_altnames(const FunctionCallbackInfo<Value> &args) {
-  Local<Object> exports = try_parse(parse_args(args))->ToObject();
+  Local<Object> exports(try_parse(parse_args(args))->ToObject());
   args.GetReturnValue().Set(exports->Get(String::NewSymbol("altNames")));
 }
 
 void get_subject(const FunctionCallbackInfo<Value> &args) {
-  Local<Object> exports = try_parse(parse_args(args))->ToObject();
+  Local<Object> exports(try_parse(parse_args(args))->ToObject());
   args.GetReturnValue().Set(exports->Get(String::NewSymbol("subject")));
 }
 
 void get_issuer(const FunctionCallbackInfo<Value> &args) {
-  Local<Object> exports = try_parse(parse_args(args))->ToObject();
+  Local<Object> exports(try_parse(parse_args(args))->ToObject());
   args.GetReturnValue().Set(exports->Get(String::NewSymbol("issuer")));
 }
 
@@ -45,7 +45,7 @@ char* parse_args(const FunctionCallbackInfo<Value> &args) {
 }
 
 void parse_cert(const FunctionCallbackInfo<Value> &args) {
-  Local<Object> exports = try_parse(parse_args(args))->ToObject();
+  Local<Object> exports(try_parse(parse_args(args))->ToObject());
   args.GetReturnValue().Set(exports);
 }
 
@@ -55,21 +55,21 @@ void parse_cert(const FunctionCallbackInfo<Value> &args) {
  */
 Handle<Value> get_altnames(const Arguments &args) {
   HandleScope scope;
-  Handle<Object> exports = Handle<Object>::Cast(parse_cert(args));
+  Handle<Object> exports(Handle<Object>::Cast(parse_cert(args)));
 
   return scope.Close(exports->Get(String::NewSymbol("altNames")));
 }
 
 Handle<Value> get_subject(const Arguments &args) {
   HandleScope scope;
-  Handle<Object> exports = Handle<Object>::Cast(parse_cert(args));
+  Handle<Object> exports(Handle<Object>::Cast(parse_cert(args)));
 
   return scope.Close(exports->Get(String::NewSymbol("subject")));
 }
 
 Handle<Value> get_issuer(const Arguments &args) {
   HandleScope scope;
-  Handle<Object> exports = Handle<Object>::Cast(parse_cert(args));
+  Handle<Object> exports(Handle<Object>::Cast(parse_cert(args)));
 
   return scope.Close(exports->Get(String::NewSymbol("issuer")));
 }
@@ -104,7 +104,7 @@ Handle<Value> parse_cert(const Arguments &args) {
  */
 Handle<Value> try_parse(char *data) {
   HandleScope scope;
-  Handle<Object> exports = Object::New();
+  Handle<Object> exports(Object::New());
   X509 *cert;
 
   BIO *bio = BIO_new(BIO_s_mem());
@@ -183,8 +183,8 @@ Handle<Value> parse_date(char *date) {
   HandleScope scope;
   char current[3];
   int i;
-  Local<Array> dateArray = Array::New();
-  Local<String> output = String::New("");
+  Local<Array> dateArray(Array::New());
+  Local<String> output(String::New(""));
   Local<Value> args[1];
 
   for (i = 0; i < (int) strlen(date) - 1; i += 2) {
@@ -210,14 +210,14 @@ Handle<Value> parse_date(char *date) {
 Handle<Object> parse_name(X509_NAME *subject) {
   HandleScope scope;
   Handle<Object> cert(Object::New());
-  int i, nid, length;
+  int i, length;
   ASN1_OBJECT *entry;
   unsigned char *value;
   char buf[255];
   length = X509_NAME_entry_count(subject);
   for (i = 0; i < length; i++) {
     entry = X509_NAME_ENTRY_get_object(X509_NAME_get_entry(subject, i));
-    nid = OBJ_obj2txt(buf, 255, entry, 0);
+    OBJ_obj2txt(buf, 255, entry, 0);
     value = ASN1_STRING_data(X509_NAME_ENTRY_get_data(X509_NAME_get_entry(subject, i)));
     cert->Set(String::NewSymbol(real_name(buf)), String::New((const char*) value));
   }
@@ -225,7 +225,7 @@ Handle<Object> parse_name(X509_NAME *subject) {
 }
 
 // Fix for missing fields in OpenSSL.
-char *real_name(char *data) {
+char* real_name(char *data) {
   if (strcmp(data, "1.3.6.1.4.1.311.60.2.1.1") == 0)
     return (char*) "jurisdictionOfIncorpationLocalityName";
 

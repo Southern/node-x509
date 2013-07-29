@@ -31,6 +31,6 @@ using namespace v8;
 Handle<Value> try_parse(char *data);
 Handle<Value> parse_date(char *date);
 Handle<Object> parse_name(X509_NAME *subject);
-char *real_name(char *data);
+char* real_name(char *data);
 
 #endif
