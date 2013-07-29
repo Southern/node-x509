@@ -15,3 +15,6 @@ notifications:
     on_success: change
     on_failure: change
 
+before_install:
+  - npm install -g node-gyp
+  - rm -rf ~/.node-gyp/
