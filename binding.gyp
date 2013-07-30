@@ -1,7 +1,13 @@
 {
-  'includes': [
-    'build/version.gypi'
-  ],
+  'target_defaults': {
+    'variables': {
+      'version': '<!(node -p \'require("./package.json").version\')'
+    },
+    'defines': [
+      'VERSION="<@(version)"'
+    ]
+  },
+
   'targets': [
     {
       'target_name': 'x509',

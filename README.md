@@ -12,9 +12,9 @@ From NPM *(recommended)*: `npm install x509`
 
 Building and testing from source:
 ```
-sudo npm install -g node-gyp                sudo npm install -g node-gyp
-make                                or      npm install
-npm test                                    npm test
+sudo npm install -g node-gyp
+npm install
+npm test
 ```
 
 ## Usage
