@@ -172,6 +172,8 @@ Handle<Value> try_parse(char *data) {
 
   exports->Set(String::NewSymbol("altNames"), altNames);
 
+  X509_free(cert);
+
 #if NODE_VERSION_AT_LEAST(0, 11, 3) && !defined(__linux__)
   free(data);
 #endif
