@@ -1,7 +1,7 @@
 {
   'target_defaults': {
     'variables': {
-      'version': '<!(node -p \'require("./package.json").version\')'
+      'version': '<!(node -pe \'require("./package.json").version\')'
     },
     'defines': [
       'VERSION="<@(version)"'
