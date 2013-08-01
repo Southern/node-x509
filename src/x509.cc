@@ -4,6 +4,25 @@
 
 using namespace v8;
 
+// Field names that OpenSSL is missing.
+char *MISSING[3][2] = {
+  {
+    (char*) "1.3.6.1.4.1.311.60.2.1.1",
+    (char*) "jurisdictionOfIncorpationLocalityName"
+  },
+
+  {
+    (char*) "1.3.6.1.4.1.311.60.2.1.2",
+    (char*) "jurisdictionOfIncorporationStateOrProvinceName"
+  },
+
+  {
+    (char*) "1.3.6.1.4.1.311.60.2.1.3",
+    (char*) "jurisdictionOfIncorporationCountryName"
+  }
+};
+
+
 #if NODE_VERSION_AT_LEAST(0, 11, 3) && !defined(__linux__)
 /*
  * Code for 0.11.3 and higher.
@@ -228,14 +247,12 @@ Handle<Object> parse_name(X509_NAME *subject) {
 
 // Fix for missing fields in OpenSSL.
 char* real_name(char *data) {
-  if (strcmp(data, "1.3.6.1.4.1.311.60.2.1.1") == 0)
-    return (char*) "jurisdictionOfIncorpationLocalityName";
+  int i, length = (int) sizeof(MISSING) / sizeof(MISSING[0]);
 
-  if (strcmp(data, "1.3.6.1.4.1.311.60.2.1.2") == 0)
-    return (char*) "jurisdictionOfIncorporationStateOrProvinceName";
-
-  if (strcmp(data, "1.3.6.1.4.1.311.60.2.1.3") == 0)
-    return (char*) "jurisdictionOfIncorporationCountryName";
+  for (i = 0; i < length; i++) {
+    if (strcmp(data, MISSING[i][0]) == 0)
+      return MISSING[i][1];
+  }
 
   return data;
 }
