@@ -23,7 +23,7 @@ char *MISSING[3][2] = {
 };
 
 
-#if NODE_VERSION_AT_LEAST(0, 11, 3) && !defined(__linux__)
+#if NODE_VERSION_AT_LEAST(0, 11, 3) && defined(__APPLE__)
 /*
  * Code for 0.11.3 and higher.
  */
@@ -193,7 +193,7 @@ Handle<Value> try_parse(char *data) {
 
   X509_free(cert);
 
-#if NODE_VERSION_AT_LEAST(0, 11, 3) && !defined(__linux__)
+#if NODE_VERSION_AT_LEAST(0, 11, 3) && defined(__APPLE__)
   free(data);
 #endif
 
