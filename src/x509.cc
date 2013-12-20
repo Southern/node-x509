@@ -162,6 +162,7 @@ Handle<Value> try_parse(char *data) {
 
   exports->Set(String::NewSymbol("subject"), parse_name(X509_get_subject_name(cert)));
   exports->Set(String::NewSymbol("issuer"), parse_name(X509_get_issuer_name(cert)));
+  exports->Set(String::NewSymbol("serial"), parse_serial(X509_get_serialNumber(cert)));
   exports->Set(String::NewSymbol("notBefore"), parse_date((char*) ASN1_STRING_data(X509_get_notBefore(cert))));
   exports->Set(String::NewSymbol("notAfter"), parse_date((char*) ASN1_STRING_data(X509_get_notAfter(cert))));
 
@@ -198,6 +199,18 @@ Handle<Value> try_parse(char *data) {
 #endif
 
   return scope.Close(exports);
+}
+
+Handle<Value> parse_serial(ASN1_INTEGER *serial) {
+  HandleScope scope;
+  Local<String> serialNumber;
+  BIGNUM *bn = ASN1_INTEGER_to_BN(serial, NULL);
+  char *hex = BN_bn2hex(bn);
+
+  serialNumber = String::New(hex);
+  BN_free(bn);
+  OPENSSL_free(hex);
+  return scope.Close(serialNumber);
 }
 
 Handle<Value> parse_date(char *date) {

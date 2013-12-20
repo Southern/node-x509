@@ -30,6 +30,7 @@ using namespace v8;
 
 Handle<Value> try_parse(char *data);
 Handle<Value> parse_date(char *date);
+Handle<Value> parse_serial(ASN1_INTEGER *serial);
 Handle<Object> parse_name(X509_NAME *subject);
 char* real_name(char *data);
 
