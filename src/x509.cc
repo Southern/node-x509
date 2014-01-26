@@ -23,26 +23,26 @@ char *MISSING[3][2] = {
 };
 
 
-#if NODE_VERSION_AT_LEAST(0, 11, 3) && defined(__APPLE__)
+#if NODE_VERSION_AT_LEAST(0, 11, 3)
 /*
  * Code for 0.11.3 and higher.
  */
-void get_altnames(const FunctionCallbackInfo<Value> &args) {
+void get_altnames(const v8::FunctionCallbackInfo<Value> &args) {
   Local<Object> exports(try_parse(parse_args(args))->ToObject());
   args.GetReturnValue().Set(exports->Get(String::NewSymbol("altNames")));
 }
 
-void get_subject(const FunctionCallbackInfo<Value> &args) {
+void get_subject(const v8::FunctionCallbackInfo<Value> &args) {
   Local<Object> exports(try_parse(parse_args(args))->ToObject());
   args.GetReturnValue().Set(exports->Get(String::NewSymbol("subject")));
 }
 
-void get_issuer(const FunctionCallbackInfo<Value> &args) {
+void get_issuer(const v8::FunctionCallbackInfo<Value> &args) {
   Local<Object> exports(try_parse(parse_args(args))->ToObject());
   args.GetReturnValue().Set(exports->Get(String::NewSymbol("issuer")));
 }
 
-char* parse_args(const FunctionCallbackInfo<Value> &args) {
+char* parse_args(const v8::FunctionCallbackInfo<Value> &args) {
   if (args.Length() == 0) {
     ThrowException(Exception::Error(String::New("Must provide a certificate file.")));
     return NULL;
@@ -63,7 +63,7 @@ char* parse_args(const FunctionCallbackInfo<Value> &args) {
   return value;
 }
 
-void parse_cert(const FunctionCallbackInfo<Value> &args) {
+void parse_cert(const v8::FunctionCallbackInfo<Value> &args) {
   Local<Object> exports(try_parse(parse_args(args))->ToObject());
   args.GetReturnValue().Set(exports);
 }
@@ -122,7 +122,7 @@ Handle<Value> parse_cert(const Arguments &args) {
  * This is where everything is handled for both -0.11.2 and 0.11.3+.
  */
 Handle<Value> try_parse(char *data) {
-  HandleScope scope;
+  HANDLESCOPE_BEGIN;
   Handle<Object> exports(Object::New());
   X509 *cert;
 
@@ -202,7 +202,7 @@ Handle<Value> try_parse(char *data) {
 }
 
 Handle<Value> parse_serial(ASN1_INTEGER *serial) {
-  HandleScope scope;
+  HANDLESCOPE_BEGIN;
   Local<String> serialNumber;
   BIGNUM *bn = ASN1_INTEGER_to_BN(serial, NULL);
   char *hex = BN_bn2hex(bn);
@@ -214,7 +214,7 @@ Handle<Value> parse_serial(ASN1_INTEGER *serial) {
 }
 
 Handle<Value> parse_date(char *date) {
-  HandleScope scope;
+  HANDLESCOPE_BEGIN;
   char current[3];
   int i;
   Local<Array> dateArray(Array::New());
@@ -242,7 +242,7 @@ Handle<Value> parse_date(char *date) {
 }
 
 Handle<Object> parse_name(X509_NAME *subject) {
-  HandleScope scope;
+  HANDLESCOPE_BEGIN;
   Handle<Object> cert(Object::New());
   int i, length;
   ASN1_OBJECT *entry;
