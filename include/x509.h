@@ -15,13 +15,15 @@
 
 using namespace v8;
 
-#if NODE_VERSION_AT_LEAST(0, 11, 3) && defined(__APPLE__)
-  void get_altnames(const FunctionCallbackInfo<Value> &args);
-  void get_subject(const FunctionCallbackInfo<Value> &args);
-  void get_issuer(const FunctionCallbackInfo<Value> &args);
-  char* parse_args(const FunctionCallbackInfo<Value> &args);
-  void parse_cert(const FunctionCallbackInfo<Value> &args);
+#if NODE_VERSION_AT_LEAST(0, 11, 3)
+  #define HANDLESCOPE_BEGIN HandleScope scope(Isolate::GetCurrent())
+  void get_altnames(const v8::FunctionCallbackInfo<Value> &args);
+  void get_subject(const v8::FunctionCallbackInfo<Value> &args);
+  void get_issuer(const v8::FunctionCallbackInfo<Value> &args);
+  char* parse_args(const v8::FunctionCallbackInfo<Value> &args);
+  void parse_cert(const v8::FunctionCallbackInfo<Value> &args);
 #else
+#define HANDLESCOPE_BEGIN HandleScope scope
   Handle<Value> get_altnames(const Arguments &args);
   Handle<Value> get_subject(const Arguments &args);
   Handle<Value> get_issuer(const Arguments &args);
