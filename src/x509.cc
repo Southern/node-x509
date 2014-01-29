@@ -194,7 +194,7 @@ Handle<Value> try_parse(char *data) {
 
   X509_free(cert);
 
-#if NODE_VERSION_AT_LEAST(0, 11, 3) && defined(__APPLE__)
+#if NODE_VERSION_AT_LEAST(0, 11, 3)
   free(data);
 #endif
 
