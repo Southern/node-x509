@@ -68,6 +68,11 @@ void parse_cert(const v8::FunctionCallbackInfo<Value> &args) {
   args.GetReturnValue().Set(exports);
 }
 
+void parse_pem(const v8::FunctionCallbackInfo<Value> &args) {
+  Local<Object> exports(try_parse_pem(parse_args(args))->ToObject());
+  args.GetReturnValue().Set(exports);
+}
+
 #else
 /*
  * Code for 0.11.2 and lower.
@@ -93,6 +98,7 @@ Handle<Value> get_issuer(const Arguments &args) {
   return scope.Close(exports->Get(String::NewSymbol("issuer")));
 }
 
+
 Handle<Value> parse_cert(const Arguments &args) {
   HandleScope scope;
 
@@ -114,9 +120,45 @@ Handle<Value> parse_cert(const Arguments &args) {
   String::Utf8Value value(args[0]);
   return scope.Close(try_parse(*value));
 }
+
+Handle<Value> parse_cert(const Arguments &args) {
+  HandleScope scope;
+
+  if (args.Length() == 0) {
+    ThrowException(Exception::Error(String::New("Must provide a private key file.")));
+    return scope.Close(Undefined());
+  }
+
+  if (!args[0]->IsString()) {
+    ThrowException(Exception::TypeError(String::New("Private key must be a string.")));
+    return scope.Close(Undefined());
+  }
+
+  if (args[0]->ToString()->Length() == 0) {
+    ThrowException(Exception::TypeError(String::New("Private key argument provided, but left blank.")));
+    return scope.Close(Undefined());
+  }
+
+  String::Utf8Value value(args[0]);
+  return scope.Close(try_parse_pem(*value));
+}
+
 #endif // NODE_VERSION_AT_LEAST
 
 
+
+void put_rsa_info_to_exports(Handle<Object>& exports, RSA* rsa) {
+  char *public_exponent = BN_bn2hex(rsa->e);
+  char *public_modulus = BN_bn2hex(rsa->n);
+  if(public_exponent) {
+    exports->Set(String::NewSymbol("publicModulus"), String::New(public_exponent));
+    OPENSSL_free(public_exponent);
+  }
+  if(public_modulus) {
+    exports->Set(String::NewSymbol("publicExponent"), String::New(public_modulus));
+    OPENSSL_free(public_modulus);
+  }
+}
 
 /*
  * This is where everything is handled for both -0.11.2 and 0.11.3+.
@@ -159,6 +201,18 @@ Handle<Value> try_parse(char *data) {
       return scope.Close(exports);
     }
   }
+
+  EVP_PKEY *pkey = X509_get_pubkey(cert);
+  if(pkey) {
+    RSA *rsa_public_key = NULL;
+    rsa_public_key = EVP_PKEY_get1_RSA(pkey);
+    if(rsa_public_key) {
+      put_rsa_info_to_exports(exports, rsa_public_key);
+      RSA_free(rsa_public_key);
+    }
+    EVP_PKEY_free(pkey);
+  }
+  
 
   exports->Set(String::NewSymbol("subject"), parse_name(X509_get_subject_name(cert)));
   exports->Set(String::NewSymbol("issuer"), parse_name(X509_get_issuer_name(cert)));
@@ -268,4 +322,46 @@ char* real_name(char *data) {
   }
 
   return data;
+}
+
+
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+
+static int disable_passphrase_prompt( 
+        char *buf, 
+        int size, 
+        int rwflag, 
+        void *u) 
+{ 
+  printf("PROMPT!\n");
+        return 0; 
+} 
+
+Handle<Value> try_parse_pem(char *data) {
+  HANDLESCOPE_BEGIN;
+  
+  Handle<Object> exports(Object::New());
+  BIO *bio = BIO_new(BIO_s_mem());
+  int result = BIO_puts(bio, data);
+
+  if (result == -2) {
+    ThrowException(Exception::Error(String::New("BIO doesn't support BIO_puts.")));
+    return scope.Close(exports);
+  }
+  else if (result <= 0) {
+    ThrowException(Exception::Error(String::New("No data was written to BIO.")));
+    return scope.Close(exports);
+  }
+    
+  RSA *private_key = NULL;
+  
+  private_key = PEM_read_bio_RSAPrivateKey(bio, NULL, NULL, (void*)"");
+  if(private_key) {
+    put_rsa_info_to_exports(exports, private_key);
+    RSA_free(private_key);
+  }
+
+  BIO_free(bio);
+  return scope.Close(exports);
 }

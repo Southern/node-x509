@@ -22,15 +22,18 @@ using namespace v8;
   void get_issuer(const v8::FunctionCallbackInfo<Value> &args);
   char* parse_args(const v8::FunctionCallbackInfo<Value> &args);
   void parse_cert(const v8::FunctionCallbackInfo<Value> &args);
+  void parse_pem(const v8::FunctionCallbackInfo<Value> &args);
 #else
 #define HANDLESCOPE_BEGIN HandleScope scope
   Handle<Value> get_altnames(const Arguments &args);
   Handle<Value> get_subject(const Arguments &args);
   Handle<Value> get_issuer(const Arguments &args);
   Handle<Value> parse_cert(const Arguments &args);
+  Handle<Value> parse_pem(const Arguments &args);
 #endif
 
 Handle<Value> try_parse(char *data);
+Handle<Value> try_parse_pem(char *data);
 Handle<Value> parse_date(char *date);
 Handle<Value> parse_serial(ASN1_INTEGER *serial);
 Handle<Object> parse_name(X509_NAME *subject);

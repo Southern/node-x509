@@ -12,6 +12,7 @@ void init(Handle<Object> exports) {
   exports->Set(String::NewSymbol("getSubject"), FunctionTemplate::New(get_subject)->GetFunction());
   exports->Set(String::NewSymbol("getIssuer"), FunctionTemplate::New(get_issuer)->GetFunction());
   exports->Set(String::NewSymbol("parseCert"), FunctionTemplate::New(parse_cert)->GetFunction());
+  exports->Set(String::NewSymbol("parsePem"), FunctionTemplate::New(parse_pem)->GetFunction());
 }
 
 NODE_MODULE(x509, init)
