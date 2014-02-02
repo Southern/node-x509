@@ -121,7 +121,7 @@ Handle<Value> parse_cert(const Arguments &args) {
   return scope.Close(try_parse(*value));
 }
 
-Handle<Value> parse_cert(const Arguments &args) {
+Handle<Value> parse_pem(const Arguments &args) {
   HandleScope scope;
 
   if (args.Length() == 0) {
