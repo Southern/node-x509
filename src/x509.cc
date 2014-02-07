@@ -1,5 +1,5 @@
 #include <cstring>
-
+#include <nan.h>
 #include <x509.h>
 
 using namespace v8;
@@ -23,26 +23,9 @@ char *MISSING[3][2] = {
 };
 
 
-#if NODE_VERSION_AT_LEAST(0, 11, 3)
-/*
- * Code for 0.11.3 and higher.
- */
-void get_altnames(const v8::FunctionCallbackInfo<Value> &args) {
-  Local<Object> exports(try_parse(parse_args(args))->ToObject());
-  args.GetReturnValue().Set(exports->Get(String::NewSymbol("altNames")));
-}
+Handle<Value> try_parse(const std::string& dataString);
 
-void get_subject(const v8::FunctionCallbackInfo<Value> &args) {
-  Local<Object> exports(try_parse(parse_args(args))->ToObject());
-  args.GetReturnValue().Set(exports->Get(String::NewSymbol("subject")));
-}
-
-void get_issuer(const v8::FunctionCallbackInfo<Value> &args) {
-  Local<Object> exports(try_parse(parse_args(args))->ToObject());
-  args.GetReturnValue().Set(exports->Get(String::NewSymbol("issuer")));
-}
-
-char* parse_args(const v8::FunctionCallbackInfo<Value> &args) {
+std::string parse_args(_NAN_METHOD_ARGS) {
   if (args.Length() == 0) {
     ThrowException(Exception::Error(String::New("Must provide a certificate file.")));
     return NULL;
@@ -58,93 +41,38 @@ char* parse_args(const v8::FunctionCallbackInfo<Value> &args) {
     return NULL;
   }
 
-  char *value = (char*) malloc(sizeof(char*) * args[0]->ToString()->Length());
-  sprintf(value, "%s", *String::Utf8Value(args[0]->ToString()));
-  return value;
+  return *String::Utf8Value(args[0]->ToString());
 }
 
-void parse_cert(const v8::FunctionCallbackInfo<Value> &args) {
+NAN_METHOD(get_altnames) {
+  NanScope();
   Local<Object> exports(try_parse(parse_args(args))->ToObject());
-  args.GetReturnValue().Set(exports);
+  NanReturnValue(exports->Get(String::NewSymbol("altNames")));
 }
 
-void parse_pem(const v8::FunctionCallbackInfo<Value> &args) {
+NAN_METHOD(get_subject) {
+  NanScope();
+  Local<Object> exports(try_parse(parse_args(args))->ToObject());
+  NanReturnValue(exports->Get(String::NewSymbol("subject")));
+}
+
+NAN_METHOD(get_issuer) {
+  NanScope();
+  Local<Object> exports(try_parse(parse_args(args))->ToObject());
+  NanReturnValue(exports->Get(String::NewSymbol("issuer")));
+}
+
+NAN_METHOD(parse_cert) {
+  NanScope();
+  Local<Object> exports(try_parse(parse_args(args))->ToObject());
+  NanReturnValue(exports);
+}
+
+NAN_METHOD(parse_pem) {
+  NanScope();
   Local<Object> exports(try_parse_pem(parse_args(args))->ToObject());
-  args.GetReturnValue().Set(exports);
+  NanReturnValue(exports);
 }
-
-#else
-/*
- * Code for 0.11.2 and lower.
- */
-Handle<Value> get_altnames(const Arguments &args) {
-  HandleScope scope;
-  Handle<Object> exports(Handle<Object>::Cast(parse_cert(args)));
-
-  return scope.Close(exports->Get(String::NewSymbol("altNames")));
-}
-
-Handle<Value> get_subject(const Arguments &args) {
-  HandleScope scope;
-  Handle<Object> exports(Handle<Object>::Cast(parse_cert(args)));
-
-  return scope.Close(exports->Get(String::NewSymbol("subject")));
-}
-
-Handle<Value> get_issuer(const Arguments &args) {
-  HandleScope scope;
-  Handle<Object> exports(Handle<Object>::Cast(parse_cert(args)));
-
-  return scope.Close(exports->Get(String::NewSymbol("issuer")));
-}
-
-
-Handle<Value> parse_cert(const Arguments &args) {
-  HandleScope scope;
-
-  if (args.Length() == 0) {
-    ThrowException(Exception::Error(String::New("Must provide a certificate file.")));
-    return scope.Close(Undefined());
-  }
-
-  if (!args[0]->IsString()) {
-    ThrowException(Exception::TypeError(String::New("Certificate must be a string.")));
-    return scope.Close(Undefined());
-  }
-
-  if (args[0]->ToString()->Length() == 0) {
-    ThrowException(Exception::TypeError(String::New("Certificate argument provided, but left blank.")));
-    return scope.Close(Undefined());
-  }
-
-  String::Utf8Value value(args[0]);
-  return scope.Close(try_parse(*value));
-}
-
-Handle<Value> parse_pem(const Arguments &args) {
-  HandleScope scope;
-
-  if (args.Length() == 0) {
-    ThrowException(Exception::Error(String::New("Must provide a private key file.")));
-    return scope.Close(Undefined());
-  }
-
-  if (!args[0]->IsString()) {
-    ThrowException(Exception::TypeError(String::New("Private key must be a string.")));
-    return scope.Close(Undefined());
-  }
-
-  if (args[0]->ToString()->Length() == 0) {
-    ThrowException(Exception::TypeError(String::New("Private key argument provided, but left blank.")));
-    return scope.Close(Undefined());
-  }
-
-  String::Utf8Value value(args[0]);
-  return scope.Close(try_parse_pem(*value));
-}
-
-#endif // NODE_VERSION_AT_LEAST
-
 
 
 void put_rsa_info_to_exports(Handle<Object>& exports, RSA* rsa) {
@@ -163,8 +91,10 @@ void put_rsa_info_to_exports(Handle<Object>& exports, RSA* rsa) {
 /*
  * This is where everything is handled for both -0.11.2 and 0.11.3+.
  */
-Handle<Value> try_parse(char *data) {
-  HANDLESCOPE_BEGIN;
+Handle<Value> try_parse(const std::string& dataString) {
+  NanScope();
+  const char* data = dataString.c_str();
+  
   Handle<Object> exports(Object::New());
   X509 *cert;
 
@@ -173,10 +103,12 @@ Handle<Value> try_parse(char *data) {
 
   if (result == -2) {
     ThrowException(Exception::Error(String::New("BIO doesn't support BIO_puts.")));
+    BIO_free(bio);
     return scope.Close(exports);
   }
   else if (result <= 0) {
     ThrowException(Exception::Error(String::New("No data was written to BIO.")));
+    BIO_free(bio);
     return scope.Close(exports);
   }
 
@@ -184,12 +116,14 @@ Handle<Value> try_parse(char *data) {
   cert = PEM_read_bio_X509(bio, NULL, 0, NULL);
 
   if (cert == NULL) {
+    BIO_free(bio);
     // Switch to file BIO
     bio = BIO_new(BIO_s_file());
 
     // If raw read fails, try reading the input as a filename.
     if (!BIO_read_filename(bio, data)) {
       ThrowException(Exception::Error(String::New("File doesn't exist.")));
+      BIO_free(bio);
       return scope.Close(exports);
     }
 
@@ -198,6 +132,7 @@ Handle<Value> try_parse(char *data) {
 
     if (cert == NULL) {
       ThrowException(Exception::Error(String::New("Unable to parse certificate.")));
+      BIO_free(bio);
       return scope.Close(exports);
     }
   }
@@ -241,22 +176,20 @@ Handle<Value> try_parse(char *data) {
 
         altNames->Set(i, String::New(name));
       }
+      
     }
   }
+  sk_GENERAL_NAME_pop_free(names, GENERAL_NAME_free); // http://stackoverflow.com/a/15876197/403571
 
   exports->Set(String::NewSymbol("altNames"), altNames);
 
   X509_free(cert);
-
-#if NODE_VERSION_AT_LEAST(0, 11, 3)
-  free(data);
-#endif
-
+  BIO_free(bio);
   return scope.Close(exports);
 }
 
 Handle<Value> parse_serial(ASN1_INTEGER *serial) {
-  HANDLESCOPE_BEGIN;
+  NanScope();
   Local<String> serialNumber;
   BIGNUM *bn = ASN1_INTEGER_to_BN(serial, NULL);
   char *hex = BN_bn2hex(bn);
@@ -268,7 +201,7 @@ Handle<Value> parse_serial(ASN1_INTEGER *serial) {
 }
 
 Handle<Value> parse_date(char *date) {
-  HANDLESCOPE_BEGIN;
+  NanScope();
   char current[3];
   int i;
   Local<Array> dateArray(Array::New());
@@ -289,14 +222,13 @@ Handle<Value> parse_date(char *date) {
   output = String::Concat(output, String::Concat(dateArray->Get(3)->ToString(), String::New(":")));
   output = String::Concat(output, String::Concat(dateArray->Get(4)->ToString(), String::New(":")));
   output = String::Concat(output, String::Concat(dateArray->Get(5)->ToString(), String::New(" GMT")));
-
   args[0] = output;
 
   return scope.Close(Context::GetCurrent()->Global()->Get(String::New("Date"))->ToObject()->CallAsConstructor(1, args));
 }
 
 Handle<Object> parse_name(X509_NAME *subject) {
-  HANDLESCOPE_BEGIN;
+  NanScope();
   Handle<Object> cert(Object::New());
   int i, length;
   ASN1_OBJECT *entry;
@@ -320,27 +252,14 @@ char* real_name(char *data) {
     if (strcmp(data, MISSING[i][0]) == 0)
       return MISSING[i][1];
   }
-
   return data;
 }
 
+Handle<Value> try_parse_pem(const std::string& dataString) {
+  NanScope();
 
-#include <openssl/ssl.h>
-#include <openssl/err.h>
+  const char* data = dataString.c_str();
 
-static int disable_passphrase_prompt( 
-        char *buf, 
-        int size, 
-        int rwflag, 
-        void *u) 
-{ 
-  printf("PROMPT!\n");
-        return 0; 
-} 
-
-Handle<Value> try_parse_pem(char *data) {
-  HANDLESCOPE_BEGIN;
-  
   Handle<Object> exports(Object::New());
   BIO *bio = BIO_new(BIO_s_mem());
   int result = BIO_puts(bio, data);
@@ -353,9 +272,9 @@ Handle<Value> try_parse_pem(char *data) {
     ThrowException(Exception::Error(String::New("No data was written to BIO.")));
     return scope.Close(exports);
   }
-    
+
   RSA *private_key = NULL;
-  
+
   private_key = PEM_read_bio_RSAPrivateKey(bio, NULL, NULL, (void*)"");
   if(private_key) {
     put_rsa_info_to_exports(exports, private_key);

@@ -67,6 +67,7 @@ var parsedPrivate = x509.parsePem('-----BEGIN RSA PRIVATE KEY-----\n' +
 '-----END RSA PRIVATE KEY-----\n'
 );
 
+// TODO
 // currently below does not work, the password is 'test'
 var parsedPrivateEncrypted = x509.parsePem(
 '-----BEGIN ENCRYPTED PRIVATE KEY-----\n' +
