@@ -163,8 +163,8 @@ Handle<Value> try_parse(char *data) {
   exports->Set(String::NewSymbol("subject"), parse_name(X509_get_subject_name(cert)));
   exports->Set(String::NewSymbol("issuer"), parse_name(X509_get_issuer_name(cert)));
   exports->Set(String::NewSymbol("serial"), parse_serial(X509_get_serialNumber(cert)));
-  exports->Set(String::NewSymbol("notBefore"), parse_date((char*) ASN1_STRING_data(X509_get_notBefore(cert))));
-  exports->Set(String::NewSymbol("notAfter"), parse_date((char*) ASN1_STRING_data(X509_get_notAfter(cert))));
+  exports->Set(String::NewSymbol("notBefore"), parse_date(X509_get_notBefore(cert)));
+  exports->Set(String::NewSymbol("notAfter"), parse_date(X509_get_notAfter(cert)));
 
   Local<Array> altNames(Array::New());
   STACK_OF(GENERAL_NAME) *names = NULL;
@@ -213,30 +213,20 @@ Handle<Value> parse_serial(ASN1_INTEGER *serial) {
   return scope.Close(serialNumber);
 }
 
-Handle<Value> parse_date(char *date) {
+Handle<Value> parse_date(ASN1_TIME *date) {
   HandleScope scope;
-  char current[3];
-  int i;
-  Local<Array> dateArray(Array::New());
-  Local<String> output(String::New(""));
+  BIO *bio;
+  BUF_MEM *bm;
+  char formatted[64];
   Local<Value> args[1];
 
-  for (i = 0; i < (int) strlen(date) - 1; i += 2) {
-    strncpy(current, &date[i], 2);
-    current[2] = '\0';
-
-    dateArray->Set((i / 2), String::New(current));
-  }
-
-  output = String::Concat(output, String::Concat(dateArray->Get(1)->ToString(), String::New("/")));
-  output = String::Concat(output, String::Concat(dateArray->Get(2)->ToString(), String::New("/")));
-  output = String::Concat(output, String::Concat(String::New("20"), dateArray->Get(0)->ToString()));
-  output = String::Concat(output, String::New(" "));
-  output = String::Concat(output, String::Concat(dateArray->Get(3)->ToString(), String::New(":")));
-  output = String::Concat(output, String::Concat(dateArray->Get(4)->ToString(), String::New(":")));
-  output = String::Concat(output, String::Concat(dateArray->Get(5)->ToString(), String::New(" GMT")));
-
-  args[0] = output;
+  formatted[0] = '\0';
+  bio = BIO_new(BIO_s_mem());
+  ASN1_TIME_print(bio, date);
+  BIO_get_mem_ptr (bio, &bm);
+  BUF_strlcpy (formatted, bm->data, bm->length + 1);
+  BIO_free (bio);
+  args[0] = String::New(formatted);
 
   return scope.Close(Context::GetCurrent()->Global()->Get(String::New("Date"))->ToObject()->CallAsConstructor(1, args));
 }
