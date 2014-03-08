@@ -223,9 +223,9 @@ Handle<Value> parse_date(ASN1_TIME *date) {
   formatted[0] = '\0';
   bio = BIO_new(BIO_s_mem());
   ASN1_TIME_print(bio, date);
-  BIO_get_mem_ptr (bio, &bm);
-  BUF_strlcpy (formatted, bm->data, bm->length + 1);
-  BIO_free (bio);
+  BIO_get_mem_ptr(bio, &bm);
+  BUF_strlcpy(formatted, bm->data, bm->length + 1);
+  BIO_free(bio);
   args[0] = String::New(formatted);
 
   return scope.Close(Context::GetCurrent()->Global()->Get(String::New("Date"))->ToObject()->CallAsConstructor(1, args));
