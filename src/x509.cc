@@ -117,24 +117,8 @@ Handle<Value> try_parse(const std::string& dataString) {
 
   if (cert == NULL) {
     BIO_free(bio);
-    // Switch to file BIO
-    bio = BIO_new(BIO_s_file());
-
-    // If raw read fails, try reading the input as a filename.
-    if (!BIO_read_filename(bio, data)) {
-      ThrowException(Exception::Error(String::New("File doesn't exist.")));
-      BIO_free(bio);
-      return scope.Close(exports);
-    }
-
-    // Try reading the bio again with the file in it.
-    cert = PEM_read_bio_X509(bio, NULL, 0, NULL);
-
-    if (cert == NULL) {
-      ThrowException(Exception::Error(String::New("Unable to parse certificate.")));
-      BIO_free(bio);
-      return scope.Close(exports);
-    }
+    ThrowException(Exception::Error(String::New("Unable to parse certificate.")));
+    return scope.Close(exports);
   }
 
   EVP_PKEY *pkey = X509_get_pubkey(cert);
