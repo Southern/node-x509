@@ -27,7 +27,7 @@ NAN_METHOD(parse_pem);
 
 Handle<Value> try_parse(const std::string& dataString);
 Handle<Value> try_parse_pem(const std::string& dataString);
-Handle<Value> parse_date(char *date);
+Handle<Value> parse_date(const char *date);
 Handle<Value> parse_serial(ASN1_INTEGER *serial);
 Handle<Object> parse_name(X509_NAME *subject);
 char* real_name(char *data);

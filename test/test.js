@@ -9,8 +9,8 @@ fs.readdirSync(path.join(__dirname, 'certs')).filter(function(file) {
   return file.match(/\.crt$/);
 }).forEach(function (file) {
   console.log("File: %s", file);
-  console.log(x509.parseCert(path.join(__dirname, 'certs', file)));
-  console.log();
+  var content = fs.readFileSync(path.join(__dirname, 'certs', file), 'utf8');
+  console.log(x509.parseCert(content));
 });
 
 //console.log(x509.parseCert(path.join(__dirname, 'certs', 'cert.crt')));
