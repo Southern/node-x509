@@ -96,7 +96,7 @@ Handle<Value> try_parse(const std::string& dataString) {
   NanEscapableScope();
   const char* data = dataString.c_str();
   
-  Handle<Object> exports(NanNew<Object>());
+  Local<Object> exports(NanNew<Object>());
   X509 *cert;
 
   BIO *bio = BIO_new(BIO_s_mem());
@@ -215,7 +215,7 @@ Handle<Value> parse_date(const char *date) {
 
 Handle<Object> parse_name(X509_NAME *subject) {
   NanEscapableScope();
-  Handle<Object> cert(NanNew<Object>());
+  Local<Object> cert(NanNew<Object>());
   int i, length;
   ASN1_OBJECT *entry;
   unsigned char *value;
@@ -245,7 +245,7 @@ Handle<Value> try_parse_pem(const std::string& dataString) {
   NanEscapableScope();
   const char* data = dataString.c_str();
 
-  Handle<Object> exports(NanNew<Object>());
+  Local<Object> exports(NanNew<Object>());
   BIO *bio = BIO_new(BIO_s_mem());
   int result = BIO_puts(bio, data);
 
