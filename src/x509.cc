@@ -93,6 +93,7 @@ void put_rsa_info_to_exports(Handle<Object>& exports, RSA* rsa) {
  * This is where everything is handled for both -0.11.2 and 0.11.3+.
  */
 Handle<Value> try_parse(const std::string& dataString) {
+  NanEscapableScope();
   const char* data = dataString.c_str();
   
   Handle<Object> exports(NanNew<Object>());
@@ -104,12 +105,12 @@ Handle<Value> try_parse(const std::string& dataString) {
   if (result == -2) {
     NanThrowError(Exception::Error(NanNew<String>("BIO doesn't support BIO_puts.")));
     BIO_free(bio);
-    return exports;
+    return NanEscapeScope(exports);
   }
   else if (result <= 0) {
     NanThrowError(Exception::Error(NanNew<String>("No data was written to BIO.")));
     BIO_free(bio);
-    return exports;
+    return NanEscapeScope(exports);
   }
 
   // Try raw read
@@ -118,7 +119,7 @@ Handle<Value> try_parse(const std::string& dataString) {
   if (cert == NULL) {
     BIO_free(bio);
     NanThrowError(Exception::Error(NanNew<String>("Unable to parse certificate.")));
-    return exports;
+    return NanEscapeScope(exports);
   }
 
   EVP_PKEY *pkey = X509_get_pubkey(cert);
@@ -155,7 +156,7 @@ Handle<Value> try_parse(const std::string& dataString) {
 
         if (ASN1_STRING_length(current->d.dNSName) != (int) strlen(name)) {
           NanThrowError(Exception::Error(NanNew<String>("Malformed alternative names field.")));
-          return exports;
+          return NanEscapeScope(exports);
         }
 
         altNames->Set(i, NanNew<String>(name));
@@ -170,10 +171,11 @@ Handle<Value> try_parse(const std::string& dataString) {
   X509_free(cert);
   BIO_free(bio);
 
-  return exports;
+  return NanEscapeScope(exports);
 }
 
 Handle<Value> parse_serial(ASN1_INTEGER *serial) {
+  NanEscapableScope();
   Local<String> serialNumber;
   BIGNUM *bn = ASN1_INTEGER_to_BN(serial, NULL);
   char *hex = BN_bn2hex(bn);
@@ -181,10 +183,11 @@ Handle<Value> parse_serial(ASN1_INTEGER *serial) {
   serialNumber = NanNew<String>(hex);
   BN_free(bn);
   OPENSSL_free(hex);
-  return serialNumber;
+  return NanEscapeScope(serialNumber);
 }
 
 Handle<Value> parse_date(const char *date) {
+  NanEscapableScope();
   char current[3];
   int i;
   Local<Array> dateArray(NanNew<Array>());
@@ -207,10 +210,11 @@ Handle<Value> parse_date(const char *date) {
   output = String::Concat(output, String::Concat(dateArray->Get(5)->ToString(), NanNew<String>(" GMT")));
   args[0] = output;
 
-  return (NanGetCurrentContext()->Global()->Get(NanSymbol("Date"))->ToObject()->CallAsConstructor(1, args));
+  return NanEscapeScope(NanGetCurrentContext()->Global()->Get(NanSymbol("Date"))->ToObject()->CallAsConstructor(1, args));
 }
 
 Handle<Object> parse_name(X509_NAME *subject) {
+  NanEscapableScope();
   Handle<Object> cert(NanNew<Object>());
   int i, length;
   ASN1_OBJECT *entry;
@@ -223,7 +227,7 @@ Handle<Object> parse_name(X509_NAME *subject) {
     value = ASN1_STRING_data(X509_NAME_ENTRY_get_data(X509_NAME_get_entry(subject, i)));
     cert->Set(NanSymbol(real_name(buf)), NanNew<String>((const char*) value));
   }
-  return cert;
+  return NanEscapeScope(cert);
 }
 
 // Fix for missing fields in OpenSSL.
@@ -238,6 +242,7 @@ char* real_name(char *data) {
 }
 
 Handle<Value> try_parse_pem(const std::string& dataString) {
+  NanEscapableScope();
   const char* data = dataString.c_str();
 
   Handle<Object> exports(NanNew<Object>());
@@ -246,11 +251,11 @@ Handle<Value> try_parse_pem(const std::string& dataString) {
 
   if (result == -2) {
     NanThrowError(Exception::Error(NanNew<String>("BIO doesn't support BIO_puts.")));
-    return exports;
+    return NanEscapeScope(exports);
   }
   else if (result <= 0) {
     NanThrowError(Exception::Error(NanNew<String>("No data was written to BIO.")));
-    return exports;
+    return NanEscapeScope(exports);
   }
 
   RSA *private_key = NULL;
@@ -262,5 +267,5 @@ Handle<Value> try_parse_pem(const std::string& dataString) {
   }
 
   BIO_free(bio);
-  return exports;
+  return NanEscapeScope(exports);
 }
