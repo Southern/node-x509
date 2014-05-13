@@ -103,12 +103,12 @@ Handle<Value> try_parse(const std::string& dataString) {
   int result = BIO_puts(bio, data);
 
   if (result == -2) {
-    NanThrowTypeError("BIO doesn't support BIO_puts.");
+    NanThrowError("BIO doesn't support BIO_puts.");
     BIO_free(bio);
     return NanEscapeScope(exports);
   }
   else if (result <= 0) {
-    NanThrowTypeError("No data was written to BIO.");
+    NanThrowError("No data was written to BIO.");
     BIO_free(bio);
     return NanEscapeScope(exports);
   }
@@ -118,7 +118,7 @@ Handle<Value> try_parse(const std::string& dataString) {
 
   if (cert == NULL) {
     BIO_free(bio);
-    NanThrowTypeError("Unable to parse certificate.");
+    NanThrowError("Unable to parse certificate.");
     return NanEscapeScope(exports);
   }
 
@@ -155,7 +155,7 @@ Handle<Value> try_parse(const std::string& dataString) {
         char *name = (char*) ASN1_STRING_data(current->d.dNSName);
 
         if (ASN1_STRING_length(current->d.dNSName) != (int) strlen(name)) {
-          NanThrowTypeError("Malformed alternative names field.");
+          NanThrowError("Malformed alternative names field.");
           return NanEscapeScope(exports);
         }
 
@@ -250,11 +250,11 @@ Handle<Value> try_parse_pem(const std::string& dataString) {
   int result = BIO_puts(bio, data);
 
   if (result == -2) {
-    NanThrowTypeError("BIO doesn't support BIO_puts.");
+    NanThrowError("BIO doesn't support BIO_puts.");
     return NanEscapeScope(exports);
   }
   else if (result <= 0) {
-    NanThrowTypeError("No data was written to BIO.");
+    NanThrowError("No data was written to BIO.");
     return NanEscapeScope(exports);
   }
 
