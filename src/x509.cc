@@ -27,17 +27,17 @@ Handle<Value> try_parse(const std::string& dataString);
 
 std::string parse_args(_NAN_METHOD_ARGS) {
   if (args.Length() == 0) {
-    NanThrowError(Exception::Error(NanNew<String>("Must provide a certificate file.")));
+    NanThrowTypeError("Must provide a certificate file.");
     return NULL;
   }
 
   if (!args[0]->IsString()) {
-    NanThrowError(Exception::TypeError(NanNew<String>("Certificate must be a string.")));
+    NanThrowTypeError("Certificate must be a string.");
     return NULL;
   }
 
   if (args[0]->ToString()->Length() == 0) {
-    NanThrowError(Exception::TypeError(NanNew<String>("Certificate argument provided, but left blank.")));
+    NanThrowTypeError("Certificate argument provided, but left blank.");
     return NULL;
   }
 
@@ -103,12 +103,12 @@ Handle<Value> try_parse(const std::string& dataString) {
   int result = BIO_puts(bio, data);
 
   if (result == -2) {
-    NanThrowError(Exception::Error(NanNew<String>("BIO doesn't support BIO_puts.")));
+    NanThrowTypeError("BIO doesn't support BIO_puts.");
     BIO_free(bio);
     return NanEscapeScope(exports);
   }
   else if (result <= 0) {
-    NanThrowError(Exception::Error(NanNew<String>("No data was written to BIO.")));
+    NanThrowTypeError("No data was written to BIO.");
     BIO_free(bio);
     return NanEscapeScope(exports);
   }
@@ -118,7 +118,7 @@ Handle<Value> try_parse(const std::string& dataString) {
 
   if (cert == NULL) {
     BIO_free(bio);
-    NanThrowError(Exception::Error(NanNew<String>("Unable to parse certificate.")));
+    NanThrowTypeError("Unable to parse certificate.");
     return NanEscapeScope(exports);
   }
 
@@ -155,7 +155,7 @@ Handle<Value> try_parse(const std::string& dataString) {
         char *name = (char*) ASN1_STRING_data(current->d.dNSName);
 
         if (ASN1_STRING_length(current->d.dNSName) != (int) strlen(name)) {
-          NanThrowError(Exception::Error(NanNew<String>("Malformed alternative names field.")));
+          NanThrowTypeError("Malformed alternative names field.");
           return NanEscapeScope(exports);
         }
 
@@ -250,11 +250,11 @@ Handle<Value> try_parse_pem(const std::string& dataString) {
   int result = BIO_puts(bio, data);
 
   if (result == -2) {
-    NanThrowError(Exception::Error(NanNew<String>("BIO doesn't support BIO_puts.")));
+    NanThrowTypeError("BIO doesn't support BIO_puts.");
     return NanEscapeScope(exports);
   }
   else if (result <= 0) {
-    NanThrowError(Exception::Error(NanNew<String>("No data was written to BIO.")));
+    NanThrowTypeError("No data was written to BIO.");
     return NanEscapeScope(exports);
   }
 
