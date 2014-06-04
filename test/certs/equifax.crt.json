@@ -1,0 +1,19 @@
+{
+    "publicModulus": "010001",
+    "publicExponent": "C15DB158670862EEA09A2D1F086D911468980A1EFEDA046F13846221C3D17CCE9F05E0B801F04E34ECE28A950464ACF16B535F05B3CB6780BF42028EFEDD0109ECE100144FFCFBF00CDD43BA5B2BE11F80709915579316F10F976AB7C268231CCC4D5930AC511E3BAF2BD6EE63457BC5D95F50D2E3500F3A88E7BF14FDE0C7B9",
+    "subject": {
+        "countryName": "US",
+        "organizationName": "Equifax",
+        "organizationalUnitName": "Equifax Secure Certificate Authority"
+    },
+    "issuer": {
+        "countryName": "US",
+        "organizationName": "Equifax",
+        "organizationalUnitName": "Equifax Secure Certificate Authority"
+    },
+    "serial": "35DEF4CF",
+    "notBefore": "1998-08-22T16:41:51.000Z",
+    "notAfter": "2018-08-22T16:41:51.000Z",
+    "ocspUrls": [],
+    "altNames": []
+}

@@ -7,11 +7,12 @@
 using namespace v8;
 
 void init(Handle<Object> exports) {
-  exports->Set(String::NewSymbol("version"), String::New(VERSION));
-  exports->Set(String::NewSymbol("getAltNames"), FunctionTemplate::New(get_altnames)->GetFunction());
-  exports->Set(String::NewSymbol("getSubject"), FunctionTemplate::New(get_subject)->GetFunction());
-  exports->Set(String::NewSymbol("getIssuer"), FunctionTemplate::New(get_issuer)->GetFunction());
-  exports->Set(String::NewSymbol("parseCert"), FunctionTemplate::New(parse_cert)->GetFunction());
+  exports->Set(NanNew<String>("version"), NanNew<String>(VERSION));
+  exports->Set(NanNew<String>("getAltNames"), NanNew<FunctionTemplate>(get_altnames)->GetFunction());
+  exports->Set(NanNew<String>("getSubject"), NanNew<FunctionTemplate>(get_subject)->GetFunction());
+  exports->Set(NanNew<String>("getIssuer"), NanNew<FunctionTemplate>(get_issuer)->GetFunction());
+  exports->Set(NanNew<String>("parseCert"), NanNew<FunctionTemplate>(parse_cert)->GetFunction());
+  exports->Set(NanNew<String>("parsePem"), NanNew<FunctionTemplate>(parse_pem)->GetFunction());
 }
 
 NODE_MODULE(x509, init)

@@ -1,15 +1,26 @@
 {
   "name": "x509",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "description": "Simple X509 certificate parser.",
   "author": "Colton Baker",
+  "contributors": [
+    "Damian Kaczmarek <damian@codecharm.co.uk>",
+    "Mike LaSpina <mlaspina@newrelic.com>"
+  ],
   "main": "./build/Release/x509",
   "repository": {
     "type": "git",
-    "url": "http://github.com/Southern/node-x509"
+    "url": "http://github.com/CodeCharmLtd/node-x509"
   },
   "scripts": {
-    "test": "node test/test"
+    "test": "mocha test"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "nan": "1.1.2"
+  },
+  "devDependencies": {
+    "chai": "^1.9.1",
+    "mocha": "^1.20.0"
+  }
 }

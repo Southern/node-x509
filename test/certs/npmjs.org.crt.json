@@ -1,0 +1,34 @@
+{
+    "publicModulus": "010001",
+    "publicExponent": "D351FDDB310DCC1BFE59547E122EAD1973900B4947C8814788982D663583D1306D482354829E2E31AE5131B62BF88E2B8FECEB1B419DD6AADC95D8F5F0835E6512511C2331F6BBB64239D42C73E3AA9F36C401F36E7EFDA44069A6D132F00FF7812DD06FC518560ABC9DADB3055EDD7D4ECFDF96FBF35B60B84B4D0F36AB19382F1A845CFCB9D0C3F1192463218B8AF92713CE6998626D3D50906200FA7A1D86CB8E2A21AE30219CA3AD620F3137407CD09C8BCE41E622DC0D2EBC0BA202D3444C8437464F6622C0615A097A19A19F1402B986C99731E63EEF45AD14890253B78AC0FC5A508D6F9B2F57F9FF6CD519829A9E4356B1C7CAE414B4C7CF2D6BED17",
+    "subject": {
+        "countryName": "US",
+        "stateOrProvinceName": "CA",
+        "localityName": "San Francisco",
+        "organizationName": "Joyent, Inc.",
+        "commonName": "nodejs.org"
+    },
+    "issuer": {
+        "countryName": "BE",
+        "organizationName": "GlobalSign nv-sa",
+        "commonName": "GlobalSign Organization Validation CA - G2"
+    },
+    "serial": "1121554833172D2E064EF64AAB70BFE892DA",
+    "notBefore": "2012-08-24T19:33:10.000Z",
+    "notAfter": "2014-08-25T19:33:10.000Z",
+    "ocspUrls": [
+        "http://ocsp2.globalsign.com/gsorganizationvalg2"
+    ],
+    "altNames": [
+        "nodejs.org",
+        "npmjs.org",
+        "npm.im",
+        "registry.npmjs.org",
+        "scratch.npmjs.org",
+        "build.nodejs.org",
+        "www.npm.im",
+        "packages.nodejs.org",
+        "couch.npmjs.org",
+        "www.npmjs.org"
+    ]
+}

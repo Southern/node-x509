@@ -1,0 +1,33 @@
+{
+    "publicModulus": "010001",
+    "publicExponent": "EDD389C35D707209F3334F1A7274D9B65A9550BB68619FF7FB1F19E1DA0431AF157C1A7FF973AF1DE5432B56090045694AE8C45BDFC2775251195BD12BD9396536A032191C4173FB32B23D9F98EC825B0B3764392CB7108372CDF0EA244BFAD9942EC3851539A93AF688DAF42789A6954F84A2374E7C25783AC9836D021795787D47A85583EE13C8191AB33CF15FFE3B02E185FB1166AB095D9F4C43F0C7245E297228CED475684F247229AE3928FCDF8D4F4D8373740C6F119BA7DD62DEFFE2EB17E6FF0CBFC02D313BD659A2F2DD874A487B6D3311144D349F3238F6C8199DF1B63DC546EF510B8AC633ED4861C41D171BBD7CB667E939CFA552800AF4EACD",
+    "subject": {
+        "businessCategory": "Private Organization",
+        "jurisdictionOfIncorporationCountryName": "US",
+        "jurisdictionOfIncorporationStateOrProvinceName": "Delaware",
+        "serialNumber": "5157550",
+        "streetAddress": "548 4th Street",
+        "postalCode": "94107",
+        "countryName": "US",
+        "stateOrProvinceName": "California",
+        "localityName": "San Francisco",
+        "organizationName": "GitHub, Inc.",
+        "commonName": "github.com"
+    },
+    "issuer": {
+        "countryName": "US",
+        "organizationName": "DigiCert Inc",
+        "organizationalUnitName": "www.digicert.com",
+        "commonName": "DigiCert High Assurance EV CA-1"
+    },
+    "serial": "047FBE2E4BDE0084D2CAF8E3ECFE7058",
+    "notBefore": "2013-06-10T00:00:00.000Z",
+    "notAfter": "2015-09-02T12:00:00.000Z",
+    "ocspUrls": [
+        "http://ocsp.digicert.com"
+    ],
+    "altNames": [
+        "github.com",
+        "www.github.com"
+    ]
+}
