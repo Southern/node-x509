@@ -1,0 +1,27 @@
+{
+    "publicModulus": "010001",
+    "publicExponent": "B27DB7A94351A4E542245917C579C7DFC8A703CEDE18D5CC0A40DB41B2B17B79AFF559F9B952824B78D8D41475060D5D7E44D47E360AD03083C8222EAC3AD9A1241CB4376855CC99C324B4253EFFFBE6DDC303E5284A44AC7163D6B3950D406085172492602BBF68D6F4C2A7AD80A10691E5D11CCA7EA3911EECDF98F9946FAB35193D56D7129ED8AA1545FA1DCA2422F1DF7E997A616B406D98A07E6EB0EEC125B7B6E00FE8E5879DE617DBF61296D068BB1529A31A1CB95B81E1B83B0C3E0305A7A5F5260451E29364F7444F785B1AA49540980CDB2F34B4D0C1ADF874323425B508D44C4B0BB968D3E7C98029CB7F75376AFB146EEA3EF2799254B85DCE47",
+    "subject": {
+        "organizationalUnitName": "Domain Control Validated",
+        "commonName": "www.acaline.com"
+    },
+    "issuer": {
+        "countryName": "US",
+        "stateOrProvinceName": "Arizona",
+        "localityName": "Scottsdale",
+        "organizationName": "GoDaddy.com, Inc.",
+        "organizationalUnitName": "http://certificates.godaddy.com/repository",
+        "commonName": "Go Daddy Secure Certification Authority",
+        "serialNumber": "07969287"
+    },
+    "serial": "27ACAE30B9F323",
+    "notBefore": "2013-04-26T14:51:17.000Z",
+    "notAfter": "2014-04-26T14:51:17.000Z",
+    "ocspUrls": [
+        "http://ocsp.godaddy.com/"
+    ],
+    "altNames": [
+        "www.acaline.com",
+        "acaline.com"
+    ]
+}

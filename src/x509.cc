@@ -5,20 +5,20 @@
 using namespace v8;
 
 // Field names that OpenSSL is missing.
-char *MISSING[3][2] = {
+static const char *MISSING[3][2] = {
   {
-    (char*) "1.3.6.1.4.1.311.60.2.1.1",
-    (char*) "jurisdictionOfIncorpationLocalityName"
+    "1.3.6.1.4.1.311.60.2.1.1",
+    "jurisdictionOfIncorpationLocalityName"
   },
 
   {
-    (char*) "1.3.6.1.4.1.311.60.2.1.2",
-    (char*) "jurisdictionOfIncorporationStateOrProvinceName"
+    "1.3.6.1.4.1.311.60.2.1.2",
+    "jurisdictionOfIncorporationStateOrProvinceName"
   },
 
   {
-    (char*) "1.3.6.1.4.1.311.60.2.1.3",
-    (char*) "jurisdictionOfIncorporationCountryName"
+    "1.3.6.1.4.1.311.60.2.1.3",
+    "jurisdictionOfIncorporationCountryName"
   }
 };
 
@@ -27,51 +27,74 @@ Handle<Value> try_parse(const std::string& dataString);
 
 std::string parse_args(_NAN_METHOD_ARGS) {
   if (args.Length() == 0) {
-    NanThrowTypeError("Must provide a certificate file.");
-    return NULL;
+    NanThrowTypeError("Must provide a certificate string.");
+    return std::string();
   }
-
   if (!args[0]->IsString()) {
     NanThrowTypeError("Certificate must be a string.");
-    return NULL;
+    return std::string();
   }
 
   if (args[0]->ToString()->Length() == 0) {
     NanThrowTypeError("Certificate argument provided, but left blank.");
-    return NULL;
+    return std::string();
   }
-
+  
   return *String::Utf8Value(args[0]->ToString());
 }
 
 NAN_METHOD(get_altnames) {
   NanScope();
-  Local<Object> exports(try_parse(parse_args(args))->ToObject());
-  NanReturnValue(exports->Get(NanSymbol("altNames")));
+  std::string parsed_arg = parse_args(args);
+  if(parsed_arg.size() == 0) {
+    NanReturnUndefined();
+  }
+
+  Local<Object> exports(try_parse(parsed_arg)->ToObject());
+  NanReturnValue(exports->Get(NanNew<String>("altNames")));
 }
 
 NAN_METHOD(get_subject) {
   NanScope();
-  Local<Object> exports(try_parse(parse_args(args))->ToObject());
-  NanReturnValue(exports->Get(NanSymbol("subject")));
+  std::string parsed_arg = parse_args(args);
+  if(parsed_arg.size() == 0) {
+    NanReturnUndefined();
+  }
+
+  Local<Object> exports(try_parse(parsed_arg)->ToObject());
+  NanReturnValue(exports->Get(NanNew<String>("subject")));
 }
 
 NAN_METHOD(get_issuer) {
   NanScope();
-  Local<Object> exports(try_parse(parse_args(args))->ToObject());
-  NanReturnValue(exports->Get(NanSymbol("issuer")));
+  std::string parsed_arg = parse_args(args);
+  if(parsed_arg.size() == 0) {
+    NanReturnUndefined();
+  }
+
+  Local<Object> exports(try_parse(parsed_arg)->ToObject());
+  NanReturnValue(exports->Get(NanNew<String>("issuer")));
 }
 
 NAN_METHOD(parse_cert) {
   NanScope();
-  
-  Local<Object> exports(try_parse(parse_args(args))->ToObject());
+  std::string parsed_arg = parse_args(args);
+  if(parsed_arg.size() == 0) {
+    NanReturnUndefined();
+  }
+
+  Local<Object> exports(try_parse(parsed_arg)->ToObject());
   NanReturnValue(exports);
 }
 
 NAN_METHOD(parse_pem) {
   NanScope();
-  Local<Object> exports(try_parse_pem(parse_args(args))->ToObject());
+  std::string parsed_arg = parse_args(args);
+  if(parsed_arg.size() == 0) {
+    NanReturnUndefined();
+  }
+
+  Local<Object> exports(try_parse_pem(parsed_arg)->ToObject());
   NanReturnValue(exports);
 }
 
@@ -80,11 +103,11 @@ void put_rsa_info_to_exports(Handle<Object>& exports, RSA* rsa) {
   char *public_exponent = BN_bn2hex(rsa->e);
   char *public_modulus = BN_bn2hex(rsa->n);
   if(public_exponent) {
-    exports->Set(NanSymbol("publicModulus"), NanNew<String>(public_exponent));
+    exports->Set(NanNew<String>("publicModulus"), NanNew<String>(public_exponent));
     OPENSSL_free(public_exponent);
   }
   if(public_modulus) {
-    exports->Set(NanSymbol("publicExponent"), NanNew<String>(public_modulus));
+    exports->Set(NanNew<String>("publicExponent"), NanNew<String>(public_modulus));
     OPENSSL_free(public_modulus);
   }
 }
@@ -113,9 +136,7 @@ Handle<Value> try_parse(const std::string& dataString) {
     return NanEscapeScope(exports);
   }
 
-  // Try raw read
   cert = PEM_read_bio_X509(bio, NULL, 0, NULL);
-
   if (cert == NULL) {
     BIO_free(bio);
     NanThrowError("Unable to parse certificate.");
@@ -134,21 +155,33 @@ Handle<Value> try_parse(const std::string& dataString) {
   }
   
 
-  exports->Set(NanSymbol("subject"), parse_name(X509_get_subject_name(cert)));
-  exports->Set(NanSymbol("issuer"), parse_name(X509_get_issuer_name(cert)));
-  exports->Set(NanSymbol("serial"), parse_serial(X509_get_serialNumber(cert)));
-  exports->Set(NanSymbol("notBefore"), parse_date((char*) ASN1_STRING_data(X509_get_notBefore(cert))));
-  exports->Set(NanSymbol("notAfter"), parse_date((char*) ASN1_STRING_data(X509_get_notAfter(cert))));
+  exports->Set(NanNew<String>("subject"), parse_name(X509_get_subject_name(cert)));
+  exports->Set(NanNew<String>("issuer"), parse_name(X509_get_issuer_name(cert)));
+  exports->Set(NanNew<String>("serial"), parse_serial(X509_get_serialNumber(cert)));
+  exports->Set(NanNew<String>("notBefore"), parse_date(X509_get_notBefore(cert)));
+  exports->Set(NanNew<String>("notAfter"), parse_date(X509_get_notAfter(cert)));
+
+  // get OCSP urls (if available)
+  {
+    Local<Array> ocspList = NanNew<Array>();
+    STACK_OF(OPENSSL_STRING) *ocsplst;
+    ocsplst = X509_get1_ocsp(cert);
+    for (int j = 0; j < sk_OPENSSL_STRING_num(ocsplst); j++) {
+      ocspList->Set(j, NanNew<String>(sk_OPENSSL_STRING_value(ocsplst, j)));
+    }
+    X509_email_free(ocsplst);
+
+    exports->Set(NanNew<String>("ocspUrls"), ocspList);
+  }
+
 
   Local<Array> altNames(NanNew<Array>());
   STACK_OF(GENERAL_NAME) *names = NULL;
-  int i;
 
   names = (STACK_OF(GENERAL_NAME)*) X509_get_ext_d2i(cert, NID_subject_alt_name, NULL, NULL);
-
   if (names != NULL) {
     int length = sk_GENERAL_NAME_num(names);
-    for (i = 0; i < length; i++) {
+    for (int i = 0; i < length; i++) {
       GENERAL_NAME *current = sk_GENERAL_NAME_value(names, i);
 
       if (current->type == GEN_DNS) {
@@ -166,7 +199,7 @@ Handle<Value> try_parse(const std::string& dataString) {
   }
   sk_GENERAL_NAME_pop_free(names, GENERAL_NAME_free); // http://stackoverflow.com/a/15876197/403571
 
-  exports->Set(NanSymbol("altNames"), altNames);
+  exports->Set(NanNew<String>("altNames"), altNames);
 
   X509_free(cert);
   BIO_free(bio);
@@ -186,31 +219,22 @@ Handle<Value> parse_serial(ASN1_INTEGER *serial) {
   return NanEscapeScope(serialNumber);
 }
 
-Handle<Value> parse_date(const char *date) {
+
+Handle<Value> parse_date(ASN1_TIME *date) {
   NanEscapableScope();
-  char current[3];
-  int i;
-  Local<Array> dateArray(NanNew<Array>());
-  Local<String> output(NanNew<String>(""));
-  Local<Value> args[1];
+  char formatted[64] = {0,};
+  
+  BIO *bio = BIO_new(BIO_s_mem());
+  ASN1_TIME_print(bio, date);
 
-  for (i = 0; i < (int) strlen(date) - 1; i += 2) {
-    strncpy(current, &date[i], 2);
-    current[2] = '\0';
-
-    dateArray->Set((i / 2), NanNew<String>(current));
-  }
-
-  output = String::Concat(output, String::Concat(dateArray->Get(1)->ToString(), NanNew<String>("/")));
-  output = String::Concat(output, String::Concat(dateArray->Get(2)->ToString(), NanNew<String>("/")));
-  output = String::Concat(output, String::Concat(NanNew<String>("20"), dateArray->Get(0)->ToString()));
-  output = String::Concat(output, NanNew<String>(" "));
-  output = String::Concat(output, String::Concat(dateArray->Get(3)->ToString(), NanNew<String>(":")));
-  output = String::Concat(output, String::Concat(dateArray->Get(4)->ToString(), NanNew<String>(":")));
-  output = String::Concat(output, String::Concat(dateArray->Get(5)->ToString(), NanNew<String>(" GMT")));
-  args[0] = output;
-
-  return NanEscapeScope(NanGetCurrentContext()->Global()->Get(NanSymbol("Date"))->ToObject()->CallAsConstructor(1, args));
+  BUF_MEM *bm;
+  BIO_get_mem_ptr (bio, &bm);
+  BUF_strlcpy (formatted, bm->data, std::min(bm->length + 1, sizeof(formatted)-1));
+  BIO_free (bio);
+  Local<Value> args[1] = {
+    NanNew<String>(formatted)
+  };
+  return NanEscapeScope(NanGetCurrentContext()->Global()->Get(NanNew<String>("Date"))->ToObject()->CallAsConstructor(1, args));
 }
 
 Handle<Object> parse_name(X509_NAME *subject) {
@@ -225,13 +249,13 @@ Handle<Object> parse_name(X509_NAME *subject) {
     entry = X509_NAME_ENTRY_get_object(X509_NAME_get_entry(subject, i));
     OBJ_obj2txt(buf, 255, entry, 0);
     value = ASN1_STRING_data(X509_NAME_ENTRY_get_data(X509_NAME_get_entry(subject, i)));
-    cert->Set(NanSymbol(real_name(buf)), NanNew<String>((const char*) value));
+    cert->Set(NanNew<String>(real_name(buf)), NanNew<String>((const char*) value));
   }
   return NanEscapeScope(cert);
 }
 
 // Fix for missing fields in OpenSSL.
-char* real_name(char *data) {
+const char* real_name(char *data) {
   int i, length = (int) sizeof(MISSING) / sizeof(MISSING[0]);
 
   for (i = 0; i < length; i++) {

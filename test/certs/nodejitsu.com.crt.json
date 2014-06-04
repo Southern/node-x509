@@ -1,0 +1,31 @@
+{
+    "publicModulus": "010001",
+    "publicExponent": "DB936DD4F500AA239FE27CE3F7AB8741EA194161568D7FDD690C8E8F0A0C1A78F95B07FECBF86AD074A2C6F93EB3BA614CF171799A2348BC3A448FB123E7293F504B47C88B59FDE65D1013E2B50F2BFAACF57535A7CE76016045B3EEB0AD256A453EC40D675333318844416EF389A53F3E6D3E42107A5443E84E3A5317F762B9257906E052728504C7DD8E3667095A310B5E5875FAD50F0101466B2D1BD1D80EDC744B5CBFF77C34B0279EC997E5CB34FAD4C9F830107FEA20845B268F2B2B3F669A367D0967BE34168B139976A23B2376FFD7B84845C7F2DCC91A9A17A41AA1508B0047B311DAAC7B08D8B9A6B869AD90F347848B81447F32EB6FD1F5AF063F",
+    "subject": {
+        "countryName": "US",
+        "postalCode": "10010",
+        "stateOrProvinceName": "NY",
+        "localityName": "New York",
+        "streetAddress": "902 Broadway, 4th Floor",
+        "organizationName": "Nodejitsu",
+        "organizationalUnitName": "PremiumSSL Wildcard",
+        "commonName": "*.nodejitsu.com"
+    },
+    "issuer": {
+        "countryName": "GB",
+        "stateOrProvinceName": "Greater Manchester",
+        "localityName": "Salford",
+        "organizationName": "COMODO CA Limited",
+        "commonName": "COMODO High-Assurance Secure Server CA"
+    },
+    "serial": "1AB267C6C547465F1DACD06E4B50D8AD",
+    "notBefore": "2012-10-29T00:00:00.000Z",
+    "notAfter": "2014-11-26T23:59:59.000Z",
+    "ocspUrls": [
+        "http://ocsp.comodoca.com"
+    ],
+    "altNames": [
+        "*.nodejitsu.com",
+        "nodejitsu.com"
+    ]
+}

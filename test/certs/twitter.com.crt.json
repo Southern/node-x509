@@ -1,0 +1,34 @@
+{
+    "publicModulus": "010001",
+    "publicExponent": "BEE977B4C2859174536D5A09FC542337541E6E2C896C5C43AEFCC517AB0C8DA15E64E1894C952A71D209E481FA00C15C6E2AA111D211CC2AEC9D58845B1CB0ACFAA3892DB162EA568C0649635B5BDD996ED8CE1A44C3DF17693BC16A7E072CE4BAB5C8AE75EE7ADBB44A7A3971167285AFD79BE83F8C15ED9F478C23FABF9375326ACF375F3BC033075B599E26AC50FFB2E250B81540C555FD4EAA2CE85478DA65FF4E82AB149C5356DF9DB7A9E52A21506FB3E9DF0251A3D7E791211AD00FCD73490070D292236048A90FAF551227D6225EEB2A9A370F0A145F913EFB9113A35A7C6057EA2E705F938DAF88B2DF1A70ACB6B200A2761532B970961B8E1B21FF",
+    "subject": {
+        "jurisdictionOfIncorporationCountryName": "US",
+        "jurisdictionOfIncorporationStateOrProvinceName": "Delaware",
+        "businessCategory": "Private Organization",
+        "serialNumber": "4337446",
+        "countryName": "US",
+        "postalCode": "94107",
+        "stateOrProvinceName": "California",
+        "localityName": "San Francisco",
+        "streetAddress": "795 Folsom St, Suite 600",
+        "organizationName": "Twitter, Inc.",
+        "organizationalUnitName": "Twitter Security",
+        "commonName": "twitter.com"
+    },
+    "issuer": {
+        "countryName": "US",
+        "organizationName": "VeriSign, Inc.",
+        "organizationalUnitName": "Terms of use at https://www.verisign.com/rpa (c)06",
+        "commonName": "VeriSign Class 3 Extended Validation SSL CA"
+    },
+    "serial": "1E22C737A3915E3FAB65C4B5A41CAE46",
+    "notBefore": "2012-04-10T00:00:00.000Z",
+    "notAfter": "2014-05-10T23:59:59.000Z",
+    "ocspUrls": [
+        "http://EVSecure-ocsp.verisign.com"
+    ],
+    "altNames": [
+        "www.twitter.com",
+        "twitter.com"
+    ]
+}

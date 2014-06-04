@@ -1,0 +1,47 @@
+{
+    "publicModulus": "010001",
+    "publicExponent": "E993358C70A42FCAE510AB1ED6B8934F1C82DD6BD84399B7E139452BB74AE10148FC73EDB4A1AA426DDA541D45AA2D1A893C5EE1840C6DDFBE8E72AD763C5CA62EEC2651718CC66CE2E9ABD5E1A8D8A813812040272871A36DE4F95A4AD52A6B74FC8CDF211F415755EC9582E18EF5084DA713AF866EC22E864FEDA3E8C930EEE35F1FF8DF48EFA3CBE134F2FA1AF59EFC3E8E6DB9F14BBDB29CB49D98BB5A96DCA43AF6446625DB6C52A021A618982821F3D14656F06451B18CFD66F95688B3EEDB502CBC4A398463F0C7644D9B733E433DB1C2051B59DA1023EF0B1C34372332C58DE714E76350A27BF6DC1A9E67C27255F664EFEB9350A988EBB096BAEBFD",
+    "subject": {
+        "serialNumber": "2g8aO5wI1bKJ2ZD588UsLvDe3gTbg8DU",
+        "countryName": "US",
+        "stateOrProvinceName": "California",
+        "localityName": "Sunnyvale",
+        "organizationName": "Yahoo  Inc.",
+        "commonName": "www.yahoo.com"
+    },
+    "issuer": {
+        "countryName": "US",
+        "organizationName": "Equifax",
+        "organizationalUnitName": "Equifax Secure Certificate Authority"
+    },
+    "serial": "10818A",
+    "notBefore": "2010-04-01T23:00:14.000Z",
+    "notAfter": "2015-07-03T04:50:00.000Z",
+    "ocspUrls": [],
+    "altNames": [
+        "www.yahoo.com",
+        "yahoo.com",
+        "us.yahoo.com",
+        "kr.yahoo.com",
+        "uk.yahoo.com",
+        "ie.yahoo.com",
+        "fr.yahoo.com",
+        "in.yahoo.com",
+        "ca.yahoo.com",
+        "br.yahoo.com",
+        "de.yahoo.com",
+        "es.yahoo.com",
+        "mx.yahoo.com",
+        "it.yahoo.com",
+        "sg.yahoo.com",
+        "id.yahoo.com",
+        "ph.yahoo.com",
+        "qc.yahoo.com",
+        "tw.yahoo.com",
+        "hk.yahoo.com",
+        "cn.yahoo.com",
+        "au.yahoo.com",
+        "ar.yahoo.com",
+        "vn.yahoo.com"
+    ]
+}
