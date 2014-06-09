@@ -160,12 +160,39 @@ Handle<Value> try_parse(char *data) {
     }
   }
 
+  exports->Set(String::NewSymbol("version"), Integer::New((int) X509_get_version(cert)));
   exports->Set(String::NewSymbol("subject"), parse_name(X509_get_subject_name(cert)));
   exports->Set(String::NewSymbol("issuer"), parse_name(X509_get_issuer_name(cert)));
   exports->Set(String::NewSymbol("serial"), parse_serial(X509_get_serialNumber(cert)));
   exports->Set(String::NewSymbol("notBefore"), parse_date((char*) ASN1_STRING_data(X509_get_notBefore(cert))));
   exports->Set(String::NewSymbol("notAfter"), parse_date((char*) ASN1_STRING_data(X509_get_notAfter(cert))));
 
+  // Signature Algorithm
+  int pkey_nid = OBJ_obj2nid(cert->cert_info->key->algor->algorithm);
+  if (pkey_nid == NID_undef) {
+    ThrowException(Exception::Error(
+      String::New("unable to find specified signature algorithm name.")));
+    return scope.Close(Undefined());
+  }
+  exports->Set(String::NewSymbol("signatureAlgorithm"), String::New(OBJ_nid2ln(pkey_nid)));
+
+  // public key
+  EVP_PKEY *pkey = X509_get_pubkey(cert);
+  Local<Object> publicKey = Object::New();
+
+  if (pkey_nid == NID_rsaEncryption) {
+    char *rsa_e_dec, *rsa_n_hex;
+    RSA *rsa_key;
+    rsa_key = pkey->pkey.rsa;
+    rsa_e_dec = BN_bn2dec(rsa_key->e);
+    rsa_n_hex = BN_bn2hex(rsa_key->n);
+    publicKey->Set(String::NewSymbol("e"), String::New(rsa_e_dec));
+    publicKey->Set(String::NewSymbol("n"), String::New(rsa_n_hex));
+  }
+  exports->Set(String::NewSymbol("publicKey"), publicKey);
+  EVP_PKEY_free(pkey);
+
+  // alt names
   Local<Array> altNames(Array::New());
   STACK_OF(GENERAL_NAME) *names = NULL;
   int i;
