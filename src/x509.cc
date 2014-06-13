@@ -3,6 +3,8 @@
 #include <x509.h>
 
 using namespace v8;
+using node::Buffer;
+
 
 // Field names that OpenSSL is missing.
 char *MISSING[3][2] = {
@@ -40,6 +42,11 @@ void get_subject(const FunctionCallbackInfo<Value> &args) {
 void get_issuer(const FunctionCallbackInfo<Value> &args) {
   Local<Object> exports(try_parse(parse_args(args))->ToObject());
   args.GetReturnValue().Set(exports->Get(String::NewSymbol("issuer")));
+}
+
+void get_public_key(const FunctionCallbackInfo<Value> &args) {
+  Local<Object> exports(try_parse(parse_args(args))->ToObject());
+  args.GetReturnValue().Set(exports->Get(String::NewSymbol("publicKey")));
 }
 
 char* parse_args(const FunctionCallbackInfo<Value> &args) {
@@ -91,6 +98,13 @@ Handle<Value> get_issuer(const Arguments &args) {
   Handle<Object> exports(Handle<Object>::Cast(parse_cert(args)));
 
   return scope.Close(exports->Get(String::NewSymbol("issuer")));
+}
+
+Handle<Value> get_public_key(const Arguments &args) {
+  HandleScope scope;
+  Handle<Object> exports(Handle<Object>::Cast(parse_cert(args)));
+
+  return scope.Close(exports->Get(String::NewSymbol("publicKey")));
 }
 
 Handle<Value> parse_cert(const Arguments &args) {
@@ -191,6 +205,21 @@ Handle<Value> try_parse(char *data) {
   }
 
   exports->Set(String::NewSymbol("altNames"), altNames);
+
+  EVP_PKEY *pkey = X509_get_pubkey(cert);
+  if (pkey != NULL) {
+    unsigned char *keyBuf, *tempBuf;
+
+    int keyLen = i2d_PUBKEY(pkey, NULL);
+    keyBuf = new unsigned char[keyLen]();
+    tempBuf = keyBuf; // https://www.openssl.org/support/faq.html#PROG3
+    i2d_PUBKEY(pkey, &tempBuf);
+
+    exports->Set(String::NewSymbol("publicKey"), Buffer::New((const char*)keyBuf, keyLen)->handle_);
+
+    EVP_PKEY_free(pkey);
+    delete[] keyBuf;
+  }
 
   X509_free(cert);
 

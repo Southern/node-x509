@@ -11,6 +11,7 @@ void init(Handle<Object> exports) {
   exports->Set(String::NewSymbol("getAltNames"), FunctionTemplate::New(get_altnames)->GetFunction());
   exports->Set(String::NewSymbol("getSubject"), FunctionTemplate::New(get_subject)->GetFunction());
   exports->Set(String::NewSymbol("getIssuer"), FunctionTemplate::New(get_issuer)->GetFunction());
+  exports->Set(String::NewSymbol("getPublicKey"), FunctionTemplate::New(get_public_key)->GetFunction());
   exports->Set(String::NewSymbol("parseCert"), FunctionTemplate::New(parse_cert)->GetFunction());
 }
 
