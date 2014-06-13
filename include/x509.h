@@ -4,6 +4,7 @@
 // Include header for addon version, node/v8 inclusions, etc.
 #include <addon.h>
 #include <node_version.h>
+#include <node_buffer.h>
 
 // OpenSSL headers
 #include <openssl/asn1.h>
@@ -19,12 +20,14 @@ using namespace v8;
   void get_altnames(const FunctionCallbackInfo<Value> &args);
   void get_subject(const FunctionCallbackInfo<Value> &args);
   void get_issuer(const FunctionCallbackInfo<Value> &args);
+  void get_public_key(const FunctionCallbackInfo<Value> &args);
   char* parse_args(const FunctionCallbackInfo<Value> &args);
   void parse_cert(const FunctionCallbackInfo<Value> &args);
 #else
   Handle<Value> get_altnames(const Arguments &args);
   Handle<Value> get_subject(const Arguments &args);
   Handle<Value> get_issuer(const Arguments &args);
+  Handle<Value> get_public_key(const Arguments &args);
   Handle<Value> parse_cert(const Arguments &args);
 #endif
 

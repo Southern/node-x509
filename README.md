@@ -85,6 +85,18 @@ subject = { countryName: 'US',
 */
 ```
 
+#### x509.getPublicKey(`cert`)
+Parse certificate with `x509.parseCert` and return the public key as a `Buffer`.
+
+```js
+var x509 = require('x509');
+
+var key = x509.getPublicKey(__dirname + '/certs/nodejitsu.com.crt');
+/*
+key = <SlowBuffer 30 82 01 22 30 0d 06 09 2a 86 48 86 f7 0d 01 01 01 05 00 03 82 01 0f 00 30 82 01 0a 02 82 01 01 00 db 93 6d d4 f5 00 aa 23 9f e2 7c e3 f7 ab 87 41 ea 19 ...>
+*/
+```
+
 #### x509.parseCert(`cert`)
 Parse subject, issuer, valid before and after date, and alternate names from certificate.
 
@@ -93,7 +105,7 @@ var x509 = require('x509');
 
 var cert = x509.parseCert(__dirname + '/certs/nodejitsu.com.crt');
 /*
-cert = { subject: 
+cert = { subject:
    { countryName: 'US',
      postalCode: '10010',
      stateOrProvinceName: 'NY',
@@ -102,15 +114,17 @@ cert = { subject:
      organizationName: 'Nodejitsu',
      organizationalUnitName: 'PremiumSSL Wildcard',
      commonName: '*.nodejitsu.com' },
-  issuer: 
+  issuer:
    { countryName: 'GB',
      stateOrProvinceName: 'Greater Manchester',
      localityName: 'Salford',
      organizationName: 'COMODO CA Limited',
      commonName: 'COMODO High-Assurance Secure Server CA' },
-  notBefore: Sun Oct 28 2012 20:00:00 GMT-0400 (EDT),
-  notAfter: Wed Nov 26 2014 18:59:59 GMT-0500 (EST),
-  altNames: [ '*.nodejitsu.com', 'nodejitsu.com' ] }
+  serial: '1AB267C6C547465F1DACD06E4B50D8AD',
+  notBefore: Sun Oct 28 2012 19:00:00 GMT-0500 (CDT),
+  notAfter: Wed Nov 26 2014 17:59:59 GMT-0600 (CST),
+  altNames: [ '*.nodejitsu.com', 'nodejitsu.com' ],
+  publicKey: <SlowBuffer 30 82 01 22 30 0d 06 09 2a 86 48 86 f7 0d 01 01 01 05 00 03 82 01 0f 00 30 82 01 0a 02 82 01 01 00 db 93 6d d4 f5 00 aa 23 9f e2 7c e3 f7 ab 87 41 ea 19 ...> }
 */
 ```
 
