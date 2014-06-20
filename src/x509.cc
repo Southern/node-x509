@@ -177,7 +177,25 @@ Handle<Value> try_parse(char *data) {
   exports->Set(String::NewSymbol("signatureAlgorithm"), 
     String::New(OBJ_nid2ln(sig_alg_nid)));
 
-  // printf("signature: %s\n", BN_bn2hex(cert->signature->data));
+  // fingerPrint
+  unsigned int md_size, idx;
+  unsigned char md[EVP_MAX_MD_SIZE];
+  if (X509_digest(cert, EVP_sha1(), md, &md_size)) {
+    const char hex[] = "0123456789ABCDEF";
+    char fingerprint[EVP_MAX_MD_SIZE * 3];
+    for (idx = 0; idx < md_size; idx++) {
+      fingerprint[3*idx] = hex[(md[idx] & 0xf0) >> 4];
+      fingerprint[(3*idx)+1] = hex[(md[idx] & 0x0f)];
+      fingerprint[(3*idx)+2] = ':';
+    }
+
+    if (md_size > 0) {
+      fingerprint[(3*(md_size-1))+2] = '\0';
+    } else {
+      fingerprint[0] = '\0';
+    }
+    exports->Set(String::NewSymbol("fingerPrint"), String::New(fingerprint));
+  }
 
   // public key
   int pkey_nid = OBJ_obj2nid(cert->cert_info->key->algor->algorithm);
