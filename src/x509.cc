@@ -168,17 +168,28 @@ Handle<Value> try_parse(char *data) {
   exports->Set(String::NewSymbol("notAfter"), parse_date((char*) ASN1_STRING_data(X509_get_notAfter(cert))));
 
   // Signature Algorithm
-  int pkey_nid = OBJ_obj2nid(cert->cert_info->key->algor->algorithm);
-  if (pkey_nid == NID_undef) {
+  int sig_alg_nid = OBJ_obj2nid(cert->sig_alg->algorithm);
+  if (sig_alg_nid == NID_undef) {
     ThrowException(Exception::Error(
       String::New("unable to find specified signature algorithm name.")));
     return scope.Close(Undefined());
   }
-  exports->Set(String::NewSymbol("signatureAlgorithm"), String::New(OBJ_nid2ln(pkey_nid)));
+  exports->Set(String::NewSymbol("signatureAlgorithm"), 
+    String::New(OBJ_nid2ln(sig_alg_nid)));
+
+  // printf("signature: %s\n", BN_bn2hex(cert->signature->data));
 
   // public key
+  int pkey_nid = OBJ_obj2nid(cert->cert_info->key->algor->algorithm);
+  if (pkey_nid == NID_undef) {
+    ThrowException(Exception::Error(
+      String::New("unable to find specified public key algorithm name.")));
+    return scope.Close(Undefined());
+  }
   EVP_PKEY *pkey = X509_get_pubkey(cert);
   Local<Object> publicKey = Object::New();
+  publicKey->Set(String::NewSymbol("algorithm"), 
+    String::New(OBJ_nid2ln(pkey_nid)));
 
   if (pkey_nid == NID_rsaEncryption) {
     char *rsa_e_dec, *rsa_n_hex;
