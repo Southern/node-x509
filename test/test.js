@@ -1,4 +1,4 @@
-var x509 = require('../build/Release/x509'),
+var x509 = require('../index'),
     fs = require('fs'),
     path = require('path');
 
@@ -7,5 +7,6 @@ var x509 = require('../build/Release/x509'),
 fs.readdirSync(path.join(__dirname, 'certs')).forEach(function (file) {
   console.log("File: %s", file);
   console.log(x509.parseCert(path.join(__dirname, 'certs', file)));
+  // x509.parseCert(path.join(__dirname, 'certs', file));
   console.log();
 });

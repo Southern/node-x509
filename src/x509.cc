@@ -1,5 +1,4 @@
 #include <cstring>
-
 #include <x509.h>
 
 using namespace v8;
@@ -245,8 +244,59 @@ Handle<Value> try_parse(char *data) {
       }
     }
   }
-
   exports->Set(String::NewSymbol("altNames"), altNames);
+
+  // Extensions
+  Local<Object> extensions(Object::New());
+  STACK_OF(X509_EXTENSION) *exts = cert->cert_info->extensions;
+  int num_of_exts;
+  int index_of_exts;
+  if (exts) {
+    num_of_exts = sk_X509_EXTENSION_num(exts);
+  } else {
+    num_of_exts = 0;
+  }
+
+  // IFNEG_FAIL(num_of_exts, "error parsing number of X509v3 extensions.");
+
+  for (index_of_exts = 0; index_of_exts < num_of_exts; index_of_exts++) {
+    X509_EXTENSION *ext = sk_X509_EXTENSION_value(exts, index_of_exts);
+    // IFNULL_FAIL(ext, "unable to extract extension from stack");
+    ASN1_OBJECT *obj = X509_EXTENSION_get_object(ext);
+    // IFNULL_FAIL(obj, "unable to extract ASN1 object from extension");
+
+    BIO *ext_bio = BIO_new(BIO_s_mem());
+    // IFNULL_FAIL(ext_bio, "unable to allocate memory for extension value BIO");
+    if (!X509V3_EXT_print(ext_bio, ext, 0, 0)) {
+      M_ASN1_OCTET_STRING_print(ext_bio, ext->value);
+    }
+
+    BUF_MEM *bptr;
+    BIO_get_mem_ptr(ext_bio, &bptr);
+    BIO_set_close(ext_bio, BIO_NOCLOSE);
+
+    // remove newlines
+    int lastchar = bptr->length;
+    if (lastchar > 1 && (bptr->data[lastchar-1] == '\n' || bptr->data[lastchar-1] == '\r')) {
+      bptr->data[lastchar-1] = (char) 0;
+    }
+    if (lastchar > 0 && (bptr->data[lastchar] == '\n' || bptr->data[lastchar] == '\r')) {
+      bptr->data[lastchar] = (char) 0;
+    }
+    BIO_free(ext_bio);
+
+    unsigned nid = OBJ_obj2nid(obj);
+    if (nid == NID_undef) {
+      char extname[100];
+      OBJ_obj2txt(extname, 100, (const ASN1_OBJECT *) obj, 1);
+      extensions->Set(String::NewSymbol(extname), String::New(bptr->data));
+    } else {
+      const char *c_ext_name = OBJ_nid2ln(nid);
+      // IFNULL_FAIL(c_ext_name, "invalid X509v3 extension name");
+      extensions->Set(String::NewSymbol(c_ext_name), String::New(bptr->data));
+    }
+  }
+  exports->Set(String::NewSymbol("extensions"), extensions);
 
   X509_free(cert);
 

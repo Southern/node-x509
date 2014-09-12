@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "description": "Simple X509 certificate parser.",
   "author": "Yorkie Neil <yorkiefixer@gmail.com>",
-  "main": "./build/Release/x509",
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "http://github.com/yorkie/node-x509"
