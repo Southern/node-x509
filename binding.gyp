@@ -16,7 +16,8 @@
         'src/x509.cc'
       ],
       'include_dirs': [
-        'include'
+        'include',
+        "<!(node -e \"require('nan')\")"
       ],
       'conditions': [
         [ 'OS=="win"', {

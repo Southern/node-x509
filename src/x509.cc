@@ -4,137 +4,106 @@
 using namespace v8;
 
 // Field names that OpenSSL is missing.
-char *MISSING[3][2] = {
+static const char *MISSING[3][2] = {
   {
-    (char*) "1.3.6.1.4.1.311.60.2.1.1",
-    (char*) "jurisdictionOfIncorpationLocalityName"
+    "1.3.6.1.4.1.311.60.2.1.1",
+    "jurisdictionOfIncorpationLocalityName"
   },
 
   {
-    (char*) "1.3.6.1.4.1.311.60.2.1.2",
-    (char*) "jurisdictionOfIncorporationStateOrProvinceName"
+    "1.3.6.1.4.1.311.60.2.1.2",
+    "jurisdictionOfIncorporationStateOrProvinceName"
   },
 
   {
-    (char*) "1.3.6.1.4.1.311.60.2.1.3",
-    (char*) "jurisdictionOfIncorporationCountryName"
+    "1.3.6.1.4.1.311.60.2.1.3",
+    "jurisdictionOfIncorporationCountryName"
   }
 };
 
+Handle<Value> try_parse(const std::string& dataString);
 
-#if NODE_VERSION_AT_LEAST(0, 11, 3) && defined(__APPLE__)
-/*
- * Code for 0.11.3 and higher.
- */
-void get_altnames(const FunctionCallbackInfo<Value> &args) {
-  Local<Object> exports(try_parse(parse_args(args))->ToObject());
-  args.GetReturnValue().Set(exports->Get(String::NewSymbol("altNames")));
-}
-
-void get_subject(const FunctionCallbackInfo<Value> &args) {
-  Local<Object> exports(try_parse(parse_args(args))->ToObject());
-  args.GetReturnValue().Set(exports->Get(String::NewSymbol("subject")));
-}
-
-void get_issuer(const FunctionCallbackInfo<Value> &args) {
-  Local<Object> exports(try_parse(parse_args(args))->ToObject());
-  args.GetReturnValue().Set(exports->Get(String::NewSymbol("issuer")));
-}
-
-char* parse_args(const FunctionCallbackInfo<Value> &args) {
+std::string parse_args(_NAN_METHOD_ARGS) {
   if (args.Length() == 0) {
-    ThrowException(Exception::Error(String::New("Must provide a certificate file.")));
-    return NULL;
+    NanThrowTypeError("Must provide a certificate string.");
+    return std::string();
   }
 
   if (!args[0]->IsString()) {
-    ThrowException(Exception::TypeError(String::New("Certificate must be a string.")));
-    return NULL;
+    NanThrowTypeError("Certificate must be a string.");
+    return std::string();
   }
 
   if (args[0]->ToString()->Length() == 0) {
-    ThrowException(Exception::TypeError(String::New("Certificate argument provided, but left blank.")));
-    return NULL;
+    NanThrowTypeError("Certificate argument provided, but left blank.");
+    return std::string();
   }
 
-  char *value = (char*) malloc(sizeof(char*) * args[0]->ToString()->Length());
-  sprintf(value, "%s", *String::Utf8Value(args[0]->ToString()));
-  return value;
+  return *String::Utf8Value(args[0]->ToString());
 }
 
-void parse_cert(const FunctionCallbackInfo<Value> &args) {
-  Local<Object> exports(try_parse(parse_args(args))->ToObject());
-  args.GetReturnValue().Set(exports);
-}
-
-#else
-/*
- * Code for 0.11.2 and lower.
- */
-Handle<Value> get_altnames(const Arguments &args) {
-  HandleScope scope;
-  Handle<Object> exports(Handle<Object>::Cast(parse_cert(args)));
-
-  return scope.Close(exports->Get(String::NewSymbol("altNames")));
-}
-
-Handle<Value> get_subject(const Arguments &args) {
-  HandleScope scope;
-  Handle<Object> exports(Handle<Object>::Cast(parse_cert(args)));
-
-  return scope.Close(exports->Get(String::NewSymbol("subject")));
-}
-
-Handle<Value> get_issuer(const Arguments &args) {
-  HandleScope scope;
-  Handle<Object> exports(Handle<Object>::Cast(parse_cert(args)));
-
-  return scope.Close(exports->Get(String::NewSymbol("issuer")));
-}
-
-Handle<Value> parse_cert(const Arguments &args) {
-  HandleScope scope;
-
-  if (args.Length() == 0) {
-    ThrowException(Exception::Error(String::New("Must provide a certificate file.")));
-    return scope.Close(Undefined());
+NAN_METHOD(get_altnames) {
+  NanScope();
+  std::string parsed_arg = parse_args(args);
+  if(parsed_arg.size() == 0) {
+    NanReturnUndefined();
   }
-
-  if (!args[0]->IsString()) {
-    ThrowException(Exception::TypeError(String::New("Certificate must be a string.")));
-    return scope.Close(Undefined());
-  }
-
-  if (args[0]->ToString()->Length() == 0) {
-    ThrowException(Exception::TypeError(String::New("Certificate argument provided, but left blank.")));
-    return scope.Close(Undefined());
-  }
-
-  String::Utf8Value value(args[0]);
-  return scope.Close(try_parse(*value));
+  Local<Object> exports(try_parse(parsed_arg)->ToObject());
+  NanReturnValue(exports->Get(NanNew<String>("altNames")));
 }
-#endif // NODE_VERSION_AT_LEAST
 
+NAN_METHOD(get_subject) {
+  NanScope();
+  std::string parsed_arg = parse_args(args);
+  if(parsed_arg.size() == 0) {
+    NanReturnUndefined();
+  }
+  Local<Object> exports(try_parse(parsed_arg)->ToObject());
+  NanReturnValue(exports->Get(NanNew<String>("subject")));
+}
 
+NAN_METHOD(get_issuer) {
+  NanScope();
+  std::string parsed_arg = parse_args(args);
+  if(parsed_arg.size() == 0) {
+    NanReturnUndefined();
+  }
+  Local<Object> exports(try_parse(parsed_arg)->ToObject());
+  NanReturnValue(exports->Get(NanNew<String>("issuer")));
+}
+
+NAN_METHOD(parse_cert) {
+  NanScope();
+  std::string parsed_arg = parse_args(args);
+  if(parsed_arg.size() == 0) {
+    NanReturnUndefined();
+  }
+  Local<Object> exports(try_parse(parsed_arg)->ToObject());
+  NanReturnValue(exports);
+}
 
 /*
  * This is where everything is handled for both -0.11.2 and 0.11.3+.
  */
-Handle<Value> try_parse(char *data) {
-  HandleScope scope;
-  Handle<Object> exports(Object::New());
+Handle<Value> try_parse(const std::string& dataString) {
+  NanEscapableScope();
+  const char* data = dataString.c_str();
+
+  Handle<Object> exports(NanNew<Object>());
   X509 *cert;
 
   BIO *bio = BIO_new(BIO_s_mem());
   int result = BIO_puts(bio, data);
 
   if (result == -2) {
-    ThrowException(Exception::Error(String::New("BIO doesn't support BIO_puts.")));
-    return scope.Close(exports);
+    NanThrowError("BIO doesn't support BIO_puts.");
+    BIO_free(bio);
+    return NanEscapeScope(exports);
   }
   else if (result <= 0) {
-    ThrowException(Exception::Error(String::New("No data was written to BIO.")));
-    return scope.Close(exports);
+    NanThrowError("No data was written to BIO.");
+    BIO_free(bio);
+    return NanEscapeScope(exports);
   }
 
   // Try raw read
@@ -146,35 +115,33 @@ Handle<Value> try_parse(char *data) {
 
     // If raw read fails, try reading the input as a filename.
     if (!BIO_read_filename(bio, data)) {
-      ThrowException(Exception::Error(String::New("File doesn't exist.")));
-      return scope.Close(exports);
+      NanThrowError("File doesn't exist.");
+      return NanEscapeScope(exports);
     }
 
     // Try reading the bio again with the file in it.
     cert = PEM_read_bio_X509(bio, NULL, 0, NULL);
 
     if (cert == NULL) {
-      ThrowException(Exception::Error(String::New("Unable to parse certificate.")));
-      return scope.Close(exports);
+      NanThrowError("Unable to parse certificate.");
+      return NanEscapeScope(exports);
     }
   }
 
-  exports->Set(String::NewSymbol("version"), Integer::New((int) X509_get_version(cert)));
-  exports->Set(String::NewSymbol("subject"), parse_name(X509_get_subject_name(cert)));
-  exports->Set(String::NewSymbol("issuer"), parse_name(X509_get_issuer_name(cert)));
-  exports->Set(String::NewSymbol("serial"), parse_serial(X509_get_serialNumber(cert)));
-  exports->Set(String::NewSymbol("notBefore"), parse_date(X509_get_notBefore(cert)));
-  exports->Set(String::NewSymbol("notAfter"), parse_date(X509_get_notAfter(cert)));
+  exports->Set(NanNew<String>("version"), NanNew<Integer>((int) X509_get_version(cert)));
+  exports->Set(NanNew<String>("subject"), parse_name(X509_get_subject_name(cert)));
+  exports->Set(NanNew<String>("issuer"), parse_name(X509_get_issuer_name(cert)));
+  exports->Set(NanNew<String>("serial"), parse_serial(X509_get_serialNumber(cert)));
+  exports->Set(NanNew<String>("notBefore"), parse_date(X509_get_notBefore(cert)));
+  exports->Set(NanNew<String>("notAfter"), parse_date(X509_get_notAfter(cert)));
 
   // Signature Algorithm
   int sig_alg_nid = OBJ_obj2nid(cert->sig_alg->algorithm);
   if (sig_alg_nid == NID_undef) {
-    ThrowException(Exception::Error(
-      String::New("unable to find specified signature algorithm name.")));
-    return scope.Close(Undefined());
+    NanThrowError("unable to find specified signature algorithm name.");
+    return NanEscapeScope(exports);
   }
-  exports->Set(String::NewSymbol("signatureAlgorithm"), 
-    String::New(OBJ_nid2ln(sig_alg_nid)));
+  exports->Set(NanNew<String>("signatureAlgorithm"), NanNew<String>(OBJ_nid2ln(sig_alg_nid)));
 
   // fingerPrint
   unsigned int md_size, idx;
@@ -193,20 +160,18 @@ Handle<Value> try_parse(char *data) {
     } else {
       fingerprint[0] = '\0';
     }
-    exports->Set(String::NewSymbol("fingerPrint"), String::New(fingerprint));
+    exports->Set(NanNew<String>("fingerPrint"), NanNew<String>(fingerprint));
   }
 
   // public key
   int pkey_nid = OBJ_obj2nid(cert->cert_info->key->algor->algorithm);
   if (pkey_nid == NID_undef) {
-    ThrowException(Exception::Error(
-      String::New("unable to find specified public key algorithm name.")));
-    return scope.Close(Undefined());
+    NanThrowError("unable to find specified public key algorithm name.");
+    return NanEscapeScope(exports);
   }
   EVP_PKEY *pkey = X509_get_pubkey(cert);
-  Local<Object> publicKey = Object::New();
-  publicKey->Set(String::NewSymbol("algorithm"), 
-    String::New(OBJ_nid2ln(pkey_nid)));
+  Local<Object> publicKey = NanNew<Object>();
+  publicKey->Set(NanNew<String>("algorithm"), NanNew<String>(OBJ_nid2ln(pkey_nid)));
 
   if (pkey_nid == NID_rsaEncryption) {
     char *rsa_e_dec, *rsa_n_hex;
@@ -214,14 +179,14 @@ Handle<Value> try_parse(char *data) {
     rsa_key = pkey->pkey.rsa;
     rsa_e_dec = BN_bn2dec(rsa_key->e);
     rsa_n_hex = BN_bn2hex(rsa_key->n);
-    publicKey->Set(String::NewSymbol("e"), String::New(rsa_e_dec));
-    publicKey->Set(String::NewSymbol("n"), String::New(rsa_n_hex));
+    publicKey->Set(NanNew<String>("e"), NanNew<String>(rsa_e_dec));
+    publicKey->Set(NanNew<String>("n"), NanNew<String>(rsa_n_hex));
   }
-  exports->Set(String::NewSymbol("publicKey"), publicKey);
+  exports->Set(NanNew<String>("publicKey"), publicKey);
   EVP_PKEY_free(pkey);
 
   // alt names
-  Local<Array> altNames(Array::New());
+  Local<Array> altNames(NanNew<Array>());
   STACK_OF(GENERAL_NAME) *names = NULL;
   int i;
 
@@ -236,18 +201,18 @@ Handle<Value> try_parse(char *data) {
         char *name = (char*) ASN1_STRING_data(current->d.dNSName);
 
         if (ASN1_STRING_length(current->d.dNSName) != (int) strlen(name)) {
-          ThrowException(Exception::Error(String::New("Malformed alternative names field.")));
-          return scope.Close(exports);
+          NanThrowError("Malformed alternative names field.");
+          return NanEscapeScope(exports);
         }
 
-        altNames->Set(i, String::New(name));
+        altNames->Set(i, NanNew<String>(name));
       }
     }
   }
-  exports->Set(String::NewSymbol("altNames"), altNames);
+  exports->Set(NanNew<String>("altNames"), altNames);
 
   // Extensions
-  Local<Object> extensions(Object::New());
+  Local<Object> extensions(NanNew<Object>());
   STACK_OF(X509_EXTENSION) *exts = cert->cert_info->extensions;
   int num_of_exts;
   int index_of_exts;
@@ -289,38 +254,33 @@ Handle<Value> try_parse(char *data) {
     if (nid == NID_undef) {
       char extname[100];
       OBJ_obj2txt(extname, 100, (const ASN1_OBJECT *) obj, 1);
-      extensions->Set(String::NewSymbol(extname), String::New(bptr->data));
+      extensions->Set(NanNew<String>(extname), NanNew<String>(bptr->data));
     } else {
       const char *c_ext_name = OBJ_nid2ln(nid);
       // IFNULL_FAIL(c_ext_name, "invalid X509v3 extension name");
-      extensions->Set(String::NewSymbol(c_ext_name), String::New(bptr->data));
+      extensions->Set(NanNew<String>(c_ext_name), NanNew<String>(bptr->data));
     }
   }
-  exports->Set(String::NewSymbol("extensions"), extensions);
+  exports->Set(NanNew<String>("extensions"), extensions);
 
   X509_free(cert);
-
-#if NODE_VERSION_AT_LEAST(0, 11, 3) && defined(__APPLE__)
-  free(data);
-#endif
-
-  return scope.Close(exports);
+  return NanEscapeScope(exports);
 }
 
 Handle<Value> parse_serial(ASN1_INTEGER *serial) {
-  HandleScope scope;
+  NanEscapableScope();
   Local<String> serialNumber;
   BIGNUM *bn = ASN1_INTEGER_to_BN(serial, NULL);
   char *hex = BN_bn2hex(bn);
 
-  serialNumber = String::New(hex);
+  serialNumber = NanNew<String>(hex);
   BN_free(bn);
   OPENSSL_free(hex);
-  return scope.Close(serialNumber);
+  return NanEscapeScope(serialNumber);
 }
 
 Handle<Value> parse_date(ASN1_TIME *date) {
-  HandleScope scope;
+  NanEscapableScope();
   BIO *bio;
   BUF_MEM *bm;
   char formatted[64];
@@ -332,14 +292,14 @@ Handle<Value> parse_date(ASN1_TIME *date) {
   BIO_get_mem_ptr(bio, &bm);
   BUF_strlcpy(formatted, bm->data, bm->length + 1);
   BIO_free(bio);
-  args[0] = String::New(formatted);
+  args[0] = NanNew<String>(formatted);
 
-  return scope.Close(Context::GetCurrent()->Global()->Get(String::New("Date"))->ToObject()->CallAsConstructor(1, args));
+  return NanEscapeScope(NanGetCurrentContext()->Global()->Get(NanNew<String>("Date"))->ToObject()->CallAsConstructor(1, args));
 }
 
 Handle<Object> parse_name(X509_NAME *subject) {
-  HandleScope scope;
-  Handle<Object> cert(Object::New());
+  NanEscapableScope();
+  Handle<Object> cert(NanNew<Object>());
   int i, length;
   ASN1_OBJECT *entry;
   unsigned char *value;
@@ -349,13 +309,13 @@ Handle<Object> parse_name(X509_NAME *subject) {
     entry = X509_NAME_ENTRY_get_object(X509_NAME_get_entry(subject, i));
     OBJ_obj2txt(buf, 255, entry, 0);
     value = ASN1_STRING_data(X509_NAME_ENTRY_get_data(X509_NAME_get_entry(subject, i)));
-    cert->Set(String::NewSymbol(real_name(buf)), String::New((const char*) value));
+    cert->Set(NanNew<String>(real_name(buf)), NanNew<String>((const char*) value));
   }
-  return scope.Close(cert);
+  return NanEscapeScope(cert);
 }
 
 // Fix for missing fields in OpenSSL.
-char* real_name(char *data) {
+const char* real_name(char *data) {
   int i, length = (int) sizeof(MISSING) / sizeof(MISSING[0]);
 
   for (i = 0; i < length; i++) {
