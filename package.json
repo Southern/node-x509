@@ -1,8 +1,8 @@
 {
   "name": "x.509",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Simple X509 certificate parser.",
-  "author": "Yorkie Neil <yorkiefixer@gmail.com>",
+  "author": "Colton Baker",
   "main": "index.js",
   "repository": {
     "type": "git",
