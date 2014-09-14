@@ -1,6 +1,6 @@
 {
   "name": "x.509",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "Simple X509 certificate parser.",
   "author": "Colton Baker",
   "main": "index.js",
