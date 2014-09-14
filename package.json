@@ -1,12 +1,12 @@
 {
-  "name": "x509",
-  "version": "0.0.7",
+  "name": "x.509",
+  "version": "0.1.1",
   "description": "Simple X509 certificate parser.",
-  "author": "Colton Baker",
-  "main": "./build/Release/x509",
+  "author": "Yorkie Neil <yorkiefixer@gmail.com>",
+  "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "http://github.com/Southern/node-x509"
+    "url": "http://github.com/yorkie/node-x509"
   },
   "scripts": {
     "test": "node test/test"
