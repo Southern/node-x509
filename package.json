@@ -1,5 +1,5 @@
 {
-  "name": "x.509",
+  "name": "x509",
   "version": "0.1.4",
   "description": "Simple X509 certificate parser.",
   "author": "Colton Baker",
