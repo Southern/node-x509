@@ -5,7 +5,7 @@ Simple X509 certificate parser.
 
 ## Installation
 
-From NPM *(recommended)*: `npm install x.509`
+From NPM *(recommended)*: `npm install x509`
 
 Building and testing from source:
 ```
