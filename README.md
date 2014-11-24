@@ -135,3 +135,6 @@ if (cert.notAfter < date) {
 ## License
 
 MIT
+
+#### Alternative implementation / build issues
+If you are suffering from hard to fix build issues, there is an alternative (pure javascript) implementation using emscripten: https://github.com/encharm/x509.js (based on node-x509, slightly different API)
