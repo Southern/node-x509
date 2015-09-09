@@ -1,6 +1,8 @@
 node-x509
 =========
 
+*support Node.js 4.0.0*
+
 Simple X509 certificate parser.
 
 ## Installation
