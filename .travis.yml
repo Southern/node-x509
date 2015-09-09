@@ -1,19 +1,33 @@
-language: node_js
+os:
+  - linux
 
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-4.8
+
+language: node_js
 node_js:
   - "4.0"
-  - "0.11"
+  - "0.12"
   - "0.10"
+
+install:
+  - export CXX=g++-4.8
+  - $CXX --version
+  - npm i 
+
+before_install:
+  - npm install -g node-gyp
+  - rm -rf ~/.node-gyp/
 
 notifications:
   email: false
-
   irc:
     channels:
       - "chat.freenode.net#jitsu"
     on_success: change
     on_failure: change
 
-before_install:
-  - npm install -g node-gyp
-  - rm -rf ~/.node-gyp/
