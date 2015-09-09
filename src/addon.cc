@@ -7,11 +7,21 @@
 using namespace v8;
 
 void init(Handle<Object> exports) {
-  exports->Set(NanNew<String>("version"), NanNew<String>(VERSION));
-  exports->Set(NanNew<String>("getAltNames"), NanNew<FunctionTemplate>(get_altnames)->GetFunction());
-  exports->Set(NanNew<String>("getSubject"), NanNew<FunctionTemplate>(get_subject)->GetFunction());
-  exports->Set(NanNew<String>("getIssuer"), NanNew<FunctionTemplate>(get_issuer)->GetFunction());
-  exports->Set(NanNew<String>("parseCert"), NanNew<FunctionTemplate>(parse_cert)->GetFunction());
+  Nan::Set(exports, 
+    Nan::New<String>("version").ToLocalChecked(),
+    Nan::New<String>(VERSION).ToLocalChecked());
+  Nan::Set(exports,
+    Nan::New<String>("getAltNames").ToLocalChecked(),
+    Nan::New<FunctionTemplate>(get_altnames)->GetFunction());
+  Nan::Set(exports,
+    Nan::New<String>("getSubject").ToLocalChecked(),
+    Nan::New<FunctionTemplate>(get_subject)->GetFunction());
+  Nan::Set(exports,
+    Nan::New<String>("getIssuer").ToLocalChecked(),
+    Nan::New<FunctionTemplate>(get_issuer)->GetFunction());
+  Nan::Set(exports,
+    Nan::New<String>("parseCert").ToLocalChecked(),
+    Nan::New<FunctionTemplate>(parse_cert)->GetFunction());
 }
 
 NODE_MODULE(x509, init)
