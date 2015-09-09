@@ -95,7 +95,7 @@ Handle<Value> try_parse(const std::string& dataString) {
   Nan::EscapableHandleScope scope;
   const char* data = dataString.c_str();
 
-  Handle<Object> exports(Nan::New<Object>());
+  Local<Object> exports = Nan::New<Object>();
   X509 *cert;
 
   BIO *bio = BIO_new(BIO_s_mem());
@@ -335,7 +335,7 @@ Handle<Value> parse_date(ASN1_TIME *date) {
 
 Handle<Object> parse_name(X509_NAME *subject) {
   Nan::EscapableHandleScope scope;
-  Handle<Object> cert(Nan::New<Object>());
+  Local<Object> cert = Nan::New<Object>();
   int i, length;
   ASN1_OBJECT *entry;
   unsigned char *value;
