@@ -1,9 +1,10 @@
 node-x509
 =========
 
-*support Node.js 4.0.0*
+[![Build Status](https://travis-ci.org/Southern/node-x509.svg)](https://travis-ci.org/Southern/node-x509)
 
-Simple X509 certificate parser.
+Simple X509 certificate parser. 
+*support Node.js 4.0.0*
 
 ## Installation
 
@@ -19,31 +20,27 @@ npm test
 ## Usage
 Reading from a file:
 ```js
-var x509 = require('x509');
-
-var issuer = x509.getIssuer(__dirname + '/certs/your.crt');
+const x509 = require('x509');
+const issuer = x509.getIssuer(__dirname + '/certs/your.crt');
 ```
 
 Reading from a string:
 ```js
-var fs = require('fs'),
-    x509 = require('x509');
-
-var issuer = x509.getIssuer(fs.readFileSync('./certs/your.crt').toString());
+const fs = require('fs');
+const x509 = require('x509');
+const issuer = x509.getIssuer(fs.readFileSync('./certs/your.crt').toString());
 ```
 
 ## Methods
 **Notes:**
 - `cert` may be a filename or a raw base64 encoded PEM string in any of these methods.
 
-
 #### x509.getAltNames(`cert`)
 Parse certificate with `x509.parseCert` and return the alternate names.
 
 ```js
-var x509 = require('x509');
-
-var altNames = x509.getAltNames(__dirname + '/certs/nodejitsu.com.crt');
+const x509 = require('x509');
+const altNames = x509.getAltNames(__dirname + '/certs/nodejitsu.com.crt');
 /*
 altNames = [ '*.nodejitsu.com', 'nodejitsu.com' ]
 */
@@ -53,9 +50,8 @@ altNames = [ '*.nodejitsu.com', 'nodejitsu.com' ]
 Parse certificate with `x509.parseCert` and return the issuer.
 
 ```js
-var x509 = require('x509');
-
-var issuer = x509.getIssuer(__dirname + '/certs/nodejitsu.com.crt');
+const x509 = require('x509');
+const issuer = x509.getIssuer(__dirname + '/certs/nodejitsu.com.crt');
 /*
 issuer = { countryName: 'GB',
   stateOrProvinceName: 'Greater Manchester',
@@ -69,9 +65,8 @@ issuer = { countryName: 'GB',
 Parse certificate with `x509.parseCert` and return the subject.
 
 ```js
-var x509 = require('x509');
-
-var subject = x509.getSubject(__dirname + '/certs/nodejitsu.com.crt');
+const x509 = require('x509');
+const subject = x509.getSubject(__dirname + '/certs/nodejitsu.com.crt');
 /*
 subject = { countryName: 'US',
   postalCode: '10010',
@@ -88,9 +83,8 @@ subject = { countryName: 'US',
 Parse subject, issuer, valid before and after date, and alternate names from certificate.
 
 ```js
-var x509 = require('x509');
-
-var cert = x509.parseCert(__dirname + '/certs/nodejitsu.com.crt');
+const x509 = require('x509');
+const cert = x509.parseCert(__dirname + '/certs/nodejitsu.com.crt');
 /*
 cert = { subject: 
    { countryName: 'US',
@@ -122,9 +116,9 @@ cert = { subject:
 ## Examples
 Checking the date to make sure the certificate is active:
 ```js
-var x509 = require('x509'),
-    cert = x509.parseCert('yourcert.crt'),
-    date = new Date();
+const x509 = require('x509'),
+const cert = x509.parseCert('yourcert.crt'),
+const date = new Date();
 
 if (cert.notBefore > date) {
   // Certificate isn't active yet.
