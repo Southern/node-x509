@@ -6,7 +6,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "http://github.com/yorkie/node-x509"
+    "url": "git@github.com:Southern/node-x509.git"
   },
   "scripts": {
     "test": "node test/test"
