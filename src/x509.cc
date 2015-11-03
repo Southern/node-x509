@@ -4,7 +4,12 @@
 using namespace v8;
 
 // Field names that OpenSSL is missing.
-static const char *MISSING[3][2] = {
+static const char *MISSING[4][2] = {
+  {
+    "1.2.840.113533.7.65.0",
+    "entrustVersionInfo"
+  },
+  
   {
     "1.3.6.1.4.1.311.60.2.1.1",
     "jurisdictionOfIncorpationLocalityName"
