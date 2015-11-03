@@ -21,14 +21,14 @@ npm test
 Reading from a file:
 ```js
 const x509 = require('x509');
-const issuer = x509.getIssuer(__dirname + '/certs/your.crt');
+var issuer = x509.getIssuer(__dirname + '/certs/your.crt');
 ```
 
 Reading from a string:
 ```js
-const fs = require('fs');
-const x509 = require('x509');
-const issuer = x509.getIssuer(fs.readFileSync('./certs/your.crt').toString());
+const fs = require('fs'),
+      x509 = require('x509');
+var issuer = x509.getIssuer(fs.readFileSync('./certs/your.crt').toString());
 ```
 
 ## Methods
@@ -40,7 +40,7 @@ Parse certificate with `x509.parseCert` and return the alternate names.
 
 ```js
 const x509 = require('x509');
-const altNames = x509.getAltNames(__dirname + '/certs/nodejitsu.com.crt');
+var altNames = x509.getAltNames(__dirname + '/certs/nodejitsu.com.crt');
 /*
 altNames = [ '*.nodejitsu.com', 'nodejitsu.com' ]
 */
@@ -51,7 +51,7 @@ Parse certificate with `x509.parseCert` and return the issuer.
 
 ```js
 const x509 = require('x509');
-const issuer = x509.getIssuer(__dirname + '/certs/nodejitsu.com.crt');
+var issuer = x509.getIssuer(__dirname + '/certs/nodejitsu.com.crt');
 /*
 issuer = { countryName: 'GB',
   stateOrProvinceName: 'Greater Manchester',
@@ -66,7 +66,7 @@ Parse certificate with `x509.parseCert` and return the subject.
 
 ```js
 const x509 = require('x509');
-const subject = x509.getSubject(__dirname + '/certs/nodejitsu.com.crt');
+var subject = x509.getSubject(__dirname + '/certs/nodejitsu.com.crt');
 /*
 subject = { countryName: 'US',
   postalCode: '10010',
@@ -84,7 +84,7 @@ Parse subject, issuer, valid before and after date, and alternate names from cer
 
 ```js
 const x509 = require('x509');
-const cert = x509.parseCert(__dirname + '/certs/nodejitsu.com.crt');
+var cert = x509.parseCert(__dirname + '/certs/nodejitsu.com.crt');
 /*
 cert = { subject: 
    { countryName: 'US',
@@ -116,9 +116,9 @@ cert = { subject:
 ## Examples
 Checking the date to make sure the certificate is active:
 ```js
-const x509 = require('x509'),
-const cert = x509.parseCert('yourcert.crt'),
-const date = new Date();
+const x509 = require('x509');
+var cert = x509.parseCert('yourcert.crt'),
+    date = new Date();
 
 if (cert.notBefore > date) {
   // Certificate isn't active yet.
