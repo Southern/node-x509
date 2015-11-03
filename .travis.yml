@@ -25,9 +25,3 @@ before_install:
 
 notifications:
   email: false
-  irc:
-    channels:
-      - "chat.freenode.net#jitsu"
-    on_success: change
-    on_failure: change
-
