@@ -278,14 +278,14 @@ Handle<Value> try_parse(const std::string& dataString) {
       char extname[100];
       OBJ_obj2txt(extname, 100, (const ASN1_OBJECT *) obj, 1);
       Nan::Set(extensions, 
-        Nan::New<String>(extname).ToLocalChecked(), 
+        Nan::New<String>(real_name(extname)).ToLocalChecked(), 
         Nan::New<String>(data).ToLocalChecked());
 
     } else {
       const char *c_ext_name = OBJ_nid2ln(nid);
       // IFNULL_FAIL(c_ext_name, "invalid X509v3 extension name");
       Nan::Set(extensions,
-        Nan::New<String>(c_ext_name).ToLocalChecked(), 
+        Nan::New<String>(real_name((char*)c_ext_name)).ToLocalChecked(), 
         Nan::New<String>(data).ToLocalChecked());
     }
   }
@@ -349,12 +349,12 @@ Handle<Object> parse_name(X509_NAME *subject) {
 }
 
 // Fix for missing fields in OpenSSL.
-const char* real_name(char *data) {
+char* real_name(char *data) {
   int i, length = (int) sizeof(MISSING) / sizeof(MISSING[0]);
 
   for (i = 0; i < length; i++) {
     if (strcmp(data, MISSING[i][0]) == 0)
-      return MISSING[i][1];
+      return (char*) MISSING[i][1];
   }
 
   return data;
