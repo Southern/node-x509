@@ -26,8 +26,6 @@ static const char *MISSING[4][2] = {
   }
 };
 
-Handle<Value> try_parse(const std::string& dataString);
-
 std::string parse_args(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   if (info.Length() == 0) {
     Nan::ThrowTypeError("Must provide a certificate string.");
@@ -272,7 +270,7 @@ Handle<Value> try_parse(const std::string& dataString) {
     BIO_get_mem_ptr(ext_bio, &bptr);
     BIO_set_close(ext_bio, BIO_NOCLOSE);
 
-    char *data = (char*) malloc(sizeof(char*) * bptr->length);
+    char *data = (char*) malloc(sizeof(char) * bptr->length);
     BUF_strlcpy(data, bptr->data, bptr->length + 1);
     data = trim(data, bptr->length);
 
