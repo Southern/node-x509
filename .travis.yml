@@ -25,3 +25,5 @@ before_install:
 
 notifications:
   email: false
+
+sudo: false
