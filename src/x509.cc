@@ -298,6 +298,8 @@ Handle<Value> try_parse(const std::string& dataString) {
     Nan::New<String>("extensions").ToLocalChecked(), extensions);
 
   X509_free(cert);
+  BIO_free(bio);
+  
   return scope.Escape(exports);
 }
 
