@@ -267,14 +267,10 @@ Handle<Value> try_parse(const std::string& dataString) {
     BIO_get_mem_ptr(ext_bio, &bptr);
     BIO_set_close(ext_bio, BIO_NOCLOSE);
 
-    // remove newlines
-    int lastchar = bptr->length;
-    if (lastchar > 1 && (bptr->data[lastchar-1] == '\n' || bptr->data[lastchar-1] == '\r')) {
-      bptr->data[lastchar-1] = (char) 0;
-    }
-    if (lastchar > 0 && (bptr->data[lastchar] == '\n' || bptr->data[lastchar] == '\r')) {
-      bptr->data[lastchar] = (char) 0;
-    }
+    char *data = (char*) malloc(sizeof(char*) * bptr->length);
+    BUF_strlcpy(data, bptr->data, bptr->length + 1);
+    data = trim(data, bptr->length);
+
     BIO_free(ext_bio);
 
     unsigned nid = OBJ_obj2nid(obj);
@@ -283,14 +279,14 @@ Handle<Value> try_parse(const std::string& dataString) {
       OBJ_obj2txt(extname, 100, (const ASN1_OBJECT *) obj, 1);
       Nan::Set(extensions, 
         Nan::New<String>(extname).ToLocalChecked(), 
-        Nan::New<String>(bptr->data).ToLocalChecked());
+        Nan::New<String>(data).ToLocalChecked());
 
     } else {
       const char *c_ext_name = OBJ_nid2ln(nid);
       // IFNULL_FAIL(c_ext_name, "invalid X509v3 extension name");
       Nan::Set(extensions,
         Nan::New<String>(c_ext_name).ToLocalChecked(), 
-        Nan::New<String>(bptr->data).ToLocalChecked());
+        Nan::New<String>(data).ToLocalChecked());
     }
   }
   Nan::Set(exports,
@@ -359,6 +355,21 @@ const char* real_name(char *data) {
   for (i = 0; i < length; i++) {
     if (strcmp(data, MISSING[i][0]) == 0)
       return MISSING[i][1];
+  }
+
+  return data;
+}
+
+char* trim(char *data, int len) {
+  if (data[0] == '\n' || data[0] == '\r') {
+    data = data+1;
+  }
+
+  if (len > 1 && (data[len-1] == '\n' || data[len-1] == '\r')) {
+    data[len-1] = (char) 0;
+  }
+  if (len > 0 && (data[len] == '\n' || data[len] == '\r')) {
+    data[len] = (char) 0;
   }
 
   return data;
