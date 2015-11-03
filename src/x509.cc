@@ -364,13 +364,15 @@ char* trim(char *data, int len) {
   if (data[0] == '\n' || data[0] == '\r') {
     data = data+1;
   }
-
-  if (len > 1 && (data[len-1] == '\n' || data[len-1] == '\r')) {
+  else if (len > 1 && (data[len-1] == '\n' || data[len-1] == '\r')) {
     data[len-1] = (char) 0;
   }
-  if (len > 0 && (data[len] == '\n' || data[len] == '\r')) {
+  else if (len > 0 && (data[len] == '\n' || data[len] == '\r')) {
     data[len] = (char) 0;
   }
+  else {
+    return data;
+  }
 
-  return data;
+  return trim(data, len - 1);
 }
