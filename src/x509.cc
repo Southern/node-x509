@@ -268,7 +268,7 @@ Handle<Value> try_parse(const std::string& dataString) {
 
     BUF_MEM *bptr;
     BIO_get_mem_ptr(ext_bio, &bptr);
-    BIO_set_close(ext_bio, BIO_NOCLOSE);
+    BIO_set_close(ext_bio, BIO_CLOSE);
 
     char *data = (char*) malloc(bptr->length + 1);
     BUF_strlcpy(data, bptr->data, bptr->length + 1);
