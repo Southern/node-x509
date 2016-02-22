@@ -6,6 +6,6 @@
 
 using namespace v8;
 
-void init(Handle<Object> exports);
+void init(Local<Object> exports);
 
 #endif

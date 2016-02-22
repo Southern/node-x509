@@ -24,10 +24,10 @@ NAN_METHOD(get_subject);
 NAN_METHOD(get_issuer);
 NAN_METHOD(parse_cert);
 
-Handle<Value> try_parse(const std::string& dataString);
-Handle<Value> parse_date(ASN1_TIME *date);
-Handle<Value> parse_serial(ASN1_INTEGER *serial);
-Handle<Object> parse_name(X509_NAME *subject);
+Local<Value> try_parse(const std::string& dataString);
+Local<Value> parse_date(ASN1_TIME *date);
+Local<Value> parse_serial(ASN1_INTEGER *serial);
+Local<Object> parse_name(X509_NAME *subject);
 char* real_name(char *data);
 char* trim(char *data, int len);
 

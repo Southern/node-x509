@@ -94,7 +94,7 @@ NAN_METHOD(parse_cert) {
 /*
  * This is where everything is handled for both -0.11.2 and 0.11.3+.
  */
-Handle<Value> try_parse(const std::string& dataString) {
+Local<Value> try_parse(const std::string& dataString) {
   Nan::EscapableHandleScope scope;
   const char* data = dataString.c_str();
 
@@ -301,7 +301,7 @@ Handle<Value> try_parse(const std::string& dataString) {
   return scope.Escape(exports);
 }
 
-Handle<Value> parse_serial(ASN1_INTEGER *serial) {
+Local<Value> parse_serial(ASN1_INTEGER *serial) {
   Nan::EscapableHandleScope scope;
   Local<String> serialNumber;
   BIGNUM *bn = ASN1_INTEGER_to_BN(serial, NULL);
@@ -313,7 +313,7 @@ Handle<Value> parse_serial(ASN1_INTEGER *serial) {
   return scope.Escape(serialNumber);
 }
 
-Handle<Value> parse_date(ASN1_TIME *date) {
+Local<Value> parse_date(ASN1_TIME *date) {
   Nan::EscapableHandleScope scope;
   BIO *bio;
   BUF_MEM *bm;
@@ -334,7 +334,7 @@ Handle<Value> parse_date(ASN1_TIME *date) {
   return scope.Escape(DateObject->CallAsConstructor(1, args));
 }
 
-Handle<Object> parse_name(X509_NAME *subject) {
+Local<Object> parse_name(X509_NAME *subject) {
   Nan::EscapableHandleScope scope;
   Local<Object> cert = Nan::New<Object>();
   int i, length;

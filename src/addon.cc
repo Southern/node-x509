@@ -6,7 +6,7 @@
 
 using namespace v8;
 
-void init(Handle<Object> exports) {
+void init(Local<Object> exports) {
   Nan::Set(exports, 
     Nan::New<String>("version").ToLocalChecked(),
     Nan::New<String>(VERSION).ToLocalChecked());
