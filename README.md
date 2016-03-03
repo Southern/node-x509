@@ -1,10 +1,9 @@
 node-x509
 =========
 
-[![Build Status](https://travis-ci.org/Southern/node-x509.svg)](https://travis-ci.org/Southern/node-x509)
+[![Build Status](https://travis-ci.org/Southern/node-x509.svg?branch=master)](https://travis-ci.org/Southern/node-x509)
 
-Simple X509 certificate parser. 
-*support Node.js 4.0.0*
+Simple X509 certificate parser.
 
 ## Installation
 
