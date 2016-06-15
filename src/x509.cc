@@ -125,6 +125,7 @@ Local<Value> try_parse(const std::string& dataString) {
     // If raw read fails, try reading the input as a filename.
     if (!BIO_read_filename(bio, data)) {
       Nan::ThrowError("File doesn't exist.");
+      BIO_free(bio);
       return scope.Escape(exports);
     }
 
@@ -133,6 +134,7 @@ Local<Value> try_parse(const std::string& dataString) {
 
     if (cert == NULL) {
       Nan::ThrowError("Unable to parse certificate.");
+      BIO_free(bio);
       return scope.Escape(exports);
     }
   }
@@ -160,6 +162,8 @@ Local<Value> try_parse(const std::string& dataString) {
   int sig_alg_nid = OBJ_obj2nid(cert->sig_alg->algorithm);
   if (sig_alg_nid == NID_undef) {
     Nan::ThrowError("unable to find specified signature algorithm name.");
+    X509_free(cert);
+    BIO_free(bio);
     return scope.Escape(exports);
   }
   Nan::Set(exports,
@@ -192,6 +196,8 @@ Local<Value> try_parse(const std::string& dataString) {
   int pkey_nid = OBJ_obj2nid(cert->cert_info->key->algor->algorithm);
   if (pkey_nid == NID_undef) {
     Nan::ThrowError("unable to find specified public key algorithm name.");
+    X509_free(cert);
+    BIO_free(bio);
     return scope.Escape(exports);
   }
   EVP_PKEY *pkey = X509_get_pubkey(cert);
@@ -233,6 +239,8 @@ Local<Value> try_parse(const std::string& dataString) {
 
         if (ASN1_STRING_length(current->d.dNSName) != (int) strlen(name)) {
           Nan::ThrowError("Malformed alternative names field.");
+          X509_free(cert);
+          BIO_free(bio);
           return scope.Escape(exports);
         }
         Nan::Set(altNames, i, Nan::New<String>(name).ToLocalChecked());
