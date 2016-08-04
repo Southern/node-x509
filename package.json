@@ -9,8 +9,10 @@
     "url": "git@github.com:Southern/node-x509.git"
   },
   "scripts": {
-    "test": "node test/test"
+    "test": "node test/test",
+    "ts-tst": "node-ts test/tstest.ts"
   },
+  "typings": "./node-x509.d.ts",
   "license": "MIT",
   "dependencies": {
     "nan": "2.2.0"
