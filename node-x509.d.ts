@@ -4,3 +4,5 @@ declare namespace x509 {
   function getSubject(pathOrPEM: string): any
   function parseCert(pathOrPEM: string): any
 }
+
+export = x509
