@@ -3,6 +3,7 @@ declare namespace x509 {
   function getAltNames(pathOrPEM: string): any
   function getSubject(pathOrPEM: string): any
   function parseCert(pathOrPEM: string): any
+  function verify(certPath: string, CACertChainPath: string): any
 }
 
 export = x509;
