@@ -7,9 +7,14 @@
 using namespace v8;
 
 void init(Local<Object> exports) {
-  Nan::Set(exports, 
+  Nan::Set(exports,
     Nan::New<String>("version").ToLocalChecked(),
     Nan::New<String>(VERSION).ToLocalChecked());
+
+  Nan::Set(exports,
+    Nan::New<String>("verify").ToLocalChecked(),
+    Nan::New<FunctionTemplate>(verify)->GetFunction());
+
   Nan::Set(exports,
     Nan::New<String>("getAltNames").ToLocalChecked(),
     Nan::New<FunctionTemplate>(get_altnames)->GetFunction());

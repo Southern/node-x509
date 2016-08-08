@@ -5,4 +5,4 @@ declare namespace x509 {
   function parseCert(pathOrPEM: string): any
 }
 
-export = x509
+export = x509;
