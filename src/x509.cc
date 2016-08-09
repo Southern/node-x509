@@ -67,7 +67,6 @@ NAN_METHOD(verify) {
     X509_STORE_free(store);
     BIO_free_all(certbio);
     Nan::ThrowError("Failed to create X509 certificate store.");
-    EVP_cleanup();
   }
 
   vrfy_ctx = X509_STORE_CTX_new();
@@ -80,7 +79,6 @@ NAN_METHOD(verify) {
     X509_free(cert);
     X509_STORE_CTX_free(vrfy_ctx);
     BIO_free_all(certbio);
-    EVP_cleanup();
     Nan::ThrowError("Failed to load cert");
   }
 
@@ -90,7 +88,6 @@ NAN_METHOD(verify) {
     X509_free(cert);
     BIO_free_all(certbio);
     X509_STORE_CTX_free(vrfy_ctx);
-    EVP_cleanup();
     Nan::ThrowError("Error loading CA cert or chain file\n");
   }
 
@@ -104,7 +101,6 @@ NAN_METHOD(verify) {
   X509_STORE_free(store);
   X509_free(cert);
   X509_STORE_CTX_free(vrfy_ctx);
-  EVP_cleanup();
   BIO_free_all(certbio);
 
  info.GetReturnValue().Set(Nan::New(ret == 1));

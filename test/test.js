@@ -2,11 +2,7 @@ var x509 = require('../index'),
     fs = require('fs'),
     path = require('path')
     assert = require('assert');
-
-// All cert files should read without throwing an error.
-// Simple enough test, no?
-//
-console.log(Object.keys(x509))
+/*
 fs.readdirSync(path.join(__dirname, 'certs')).forEach(function (file) {
 
 
@@ -14,7 +10,12 @@ fs.readdirSync(path.join(__dirname, 'certs')).forEach(function (file) {
   console.log(x509.parseCert(path.join(__dirname, 'certs', file)));
   x509.parseCert(path.join(__dirname, 'certs', file));
 
-});
+});*/
+
+  var isValidLicense = x509.verify(
+    '/home/zio/code/node-x509/test/certs/enduser-example.com.crt',
+    '/home/zio/code/node-x509/test/CA_chains/enduser-example.com.chain'
+  )
 
 var verified = x509.verify(
   path.join(__dirname,'certs/enduser-example.com.crt'),
