@@ -61,8 +61,6 @@ NAN_METHOD(verify) {
   X509 *cert = NULL;
   BIO *certbio = BIO_new(BIO_s_file());
 
-  //const char ca_bundlestr[] = "/home/zio/code/openssl_school/intermediate/enduser-certs/enduser-example.com.chain";
-
   if (!(store=X509_STORE_new())){
     X509_STORE_free(store);
     BIO_free_all(certbio);
@@ -95,7 +93,7 @@ NAN_METHOD(verify) {
 
   ret = X509_verify_cert(vrfy_ctx);
 
-  if(ret == 0)
+  if(ret <= 0)
     Nan::ThrowError(X509_verify_cert_error_string(vrfy_ctx->error));
 
   X509_STORE_free(store);
@@ -103,7 +101,7 @@ NAN_METHOD(verify) {
   X509_STORE_CTX_free(vrfy_ctx);
   BIO_free_all(certbio);
 
- info.GetReturnValue().Set(Nan::New(ret == 1));
+ info.GetReturnValue().Set(Nan::New(true));
 }
 
 

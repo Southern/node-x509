@@ -11,7 +11,6 @@ exports.getIssuer = x509.getIssuer;
 exports.verify = function(certPath, CABundlePath){
   assert(certPath, 'certificate path is required');
   assert(CABundlePath, 'certificate path is required');
-  console.log(certPath, CABundlePath)
   return x509.verify(certPath, CABundlePath);
 }
 
