@@ -86,7 +86,7 @@ NAN_METHOD(verify) {
     X509_free(cert);
     BIO_free_all(certbio);
     X509_STORE_CTX_free(vrfy_ctx);
-    Nan::ThrowError("Error loading CA cert or chain file\n");
+    Nan::ThrowError("Error loading CA chain file");
   }
 
   X509_STORE_CTX_init(vrfy_ctx, store, cert, NULL);
