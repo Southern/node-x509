@@ -277,12 +277,16 @@ Local<Value> try_parse(const std::string& dataString) {
     BUF_MEM *bptr;
     BIO_get_mem_ptr(ext_bio, &bptr);
     BIO_set_close(ext_bio, BIO_CLOSE);
-
     char *data = (char*) malloc(bptr->length + 1);
-    BUF_strlcpy(data, bptr->data, bptr->length + 1);
-    data = trim(data, bptr->length);
 
-    BIO_free(ext_bio);
+    if (bptr->data == NULL){
+	BIO_free(ext_bio);
+	data="";
+    } else {
+	    BUF_strlcpy(data, bptr->data, bptr->length );
+	    data = trim(data, bptr->length);
+	    BIO_free(ext_bio);
+   }
 
     unsigned nid = OBJ_obj2nid(obj);
     if (nid == NID_undef) {
