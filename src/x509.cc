@@ -280,13 +280,13 @@ Local<Value> try_parse(const std::string& dataString) {
     char *data = (char*) malloc(bptr->length + 1);
 
     if (bptr->data == NULL){
-	BIO_free(ext_bio);
-	data="";
+      BIO_free(ext_bio);
+      data="";
     } else {
-	    BUF_strlcpy(data, bptr->data, bptr->length );
-	    data = trim(data, bptr->length);
-	    BIO_free(ext_bio);
-   }
+      BUF_strlcpy(data, bptr->data, bptr->length );
+      data = trim(data, bptr->length);
+      BIO_free(ext_bio);
+    }
 
     unsigned nid = OBJ_obj2nid(obj);
     if (nid == NID_undef) {
