@@ -7,13 +7,12 @@ exports.getSubject = x509.getSubject;
 exports.getIssuer = x509.getIssuer;
 
 exports.verify = function(certPath, CABundlePath){
-  if(!certPath){
+  if (!certPath) {
     throw new Error('Certificate path is required');
-  };
-  if(!CABundlePath){
+  }
+  if (!CABundlePath) {
     throw new Error('CA Bundle path is required');
-  };
-
+  }
   fs.statSync(certPath);
   fs.statSync(CABundlePath);
   return x509.verify(certPath, CABundlePath);
