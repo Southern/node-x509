@@ -1,18 +1,23 @@
-
 var x509 = require('./build/Release/x509');
-var assert = require('assert');
+var fs = require('fs');
 
 exports.version = x509.version;
 exports.getAltNames = x509.getAltNames;
 exports.getSubject = x509.getSubject;
 exports.getIssuer = x509.getIssuer;
-// exports.verify = x509.verify;
 
 exports.verify = function(certPath, CABundlePath){
-  assert(certPath, 'certificate path is required');
-  assert(CABundlePath, 'certificate path is required');
+  if(!certPath){
+    throw new Error('Certificate path is required');
+  };
+  if(!CABundlePath){
+    throw new Error('CA Bundle path is required');
+  };
+
+  fs.statSync(certPath);
+  fs.statSync(CABundlePath);
   return x509.verify(certPath, CABundlePath);
-}
+};
 
 
 exports.parseCert = function(path) {
