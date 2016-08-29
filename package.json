@@ -1,6 +1,6 @@
 {
   "name": "x509",
-  "version": "0.3.0",
+  "version": "0.2.6",
   "description": "Simple X509 certificate parser.",
   "author": "Colton Baker",
   "main": "index.js",
@@ -11,10 +11,8 @@
   "scripts": {
     "test": "node test/test"
   },
-  "typings": "./node-x509.d.ts",
   "license": "MIT",
   "dependencies": {
-    "nan": "2.2.0",
-    "node-gyp": "^3.4.0"
+    "nan": "2.2.0"
   }
 }

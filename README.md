@@ -85,7 +85,7 @@ Parse subject, issuer, valid before and after date, and alternate names from cer
 const x509 = require('x509');
 var cert = x509.parseCert(__dirname + '/certs/nodejitsu.com.crt');
 /*
-cert = { subject: 
+cert = { subject:
    { countryName: 'US',
      postalCode: '10010',
      stateOrProvinceName: 'NY',
@@ -94,7 +94,7 @@ cert = { subject:
      organizationName: 'Nodejitsu',
      organizationalUnitName: 'PremiumSSL Wildcard',
      commonName: '*.nodejitsu.com' },
-  issuer: 
+  issuer:
    { countryName: 'GB',
      stateOrProvinceName: 'Greater Manchester',
      localityName: 'Salford',
@@ -110,6 +110,29 @@ cert = { subject:
     e: '65537',
     n: '.......' } }
 */
+```
+
+
+#### x509.verify(`cert`, `CABundlePath`)
+
+Performs basic certificate validation against a bundle of ca certificates.
+
+Returns true if validation is succesful, throws an error otherwise.
+
+The error messages are the same returned by openssl: [x509_verify_cert_error_string](https://www.openssl.org/docs/manmaster/crypto/X509_STORE_CTX_get_error.html)
+
+
+**Note:**
+As now, this function only accepts absolute paths to existing files as arguments
+
+```js
+const x509 = require('x509');
+
+x509.verify(
+  __dirname + '/certs/user.com.crt',
+  __dirname + 'enduser-example.com.chain',
+);
+
 ```
 
 ## Examples
