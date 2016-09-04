@@ -130,7 +130,7 @@ const x509 = require('x509');
 
 x509.verify(
   __dirname + '/certs/user.com.crt',
-  __dirname + 'enduser-example.com.chain',
+  __dirname + 'enduser-example.com.chain'
 );
 
 ```

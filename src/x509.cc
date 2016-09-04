@@ -61,7 +61,7 @@ NAN_METHOD(verify) {
 
   // create store
   store = X509_STORE_new();
-  if (!store){
+  if (!store) {
     X509_STORE_free(store);
     BIO_free_all(cert_bio);
     Nan::ThrowError("Failed to create X509 certificate store.");
@@ -69,7 +69,7 @@ NAN_METHOD(verify) {
 
   verify_ctx = X509_STORE_CTX_new();
 
-  if (verify_ctx == NULL){
+  if (verify_ctx == NULL) {
     X509_STORE_free(store);
     BIO_free_all(cert_bio);
     Nan::ThrowError("Failed to create X509 verification context.");
@@ -77,7 +77,7 @@ NAN_METHOD(verify) {
 
   // load file in BIO
   int ret = BIO_read_filename(cert_bio, cert_path.c_str());
-  if (ret != 1){
+  if (ret != 1) {
     X509_STORE_free(store);
     X509_free(cert);
     BIO_free_all(cert_bio);
@@ -98,7 +98,7 @@ NAN_METHOD(verify) {
 
   // load CA bundle
   ret = X509_STORE_load_locations(store, ca_bundlestr.c_str(), NULL);
-  if (ret != 1){
+  if (ret != 1) {
     X509_STORE_free(store);
     X509_free(cert);
     BIO_free_all(cert_bio);
@@ -110,8 +110,9 @@ NAN_METHOD(verify) {
   X509_STORE_CTX_init(verify_ctx, store, cert, NULL);
   ret = X509_verify_cert(verify_ctx);
 
-  if (ret <= 0)
+  if (ret <= 0) {
     Nan::ThrowError(X509_verify_cert_error_string(verify_ctx->error));
+  }
 
   X509_STORE_free(store);
   X509_free(cert);

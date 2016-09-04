@@ -12,26 +12,27 @@ fs.readdirSync(path.join(__dirname, 'certs')).forEach(function (file) {
   console.log();
 });
 
-(function(){
-  var verified = x509.verify(
+
+{
+  const verified = x509.verify(
     path.join(__dirname,'certs/enduser-example.com.crt'),
     path.join(__dirname,'CA_chains/enduser-example.com.chain')
-  )
-  assert(verified)
-})
+  );
+  assert(verified);
+}
 
 
-assert.throws(function(){
+assert.throws(function () {
   x509.verify(
     path.join(__dirname,'certs/acaline.com.crt'),
     path.join(__dirname,'CA_chains/enduser-example.com.chain')
-  )
-}, /unable to get local issuer certificate/)
+  );
+}, /unable to get local issuer certificate/);
 
 
-assert.throws(function(){
+assert.throws(function () {
   x509.verify(
     path.join(__dirname,'certs/notexisting.com.crt'),
     path.join(__dirname,'CA_chains/enduser-example.com.chain')
-  )
-}, /no such file or directory/)
+  );
+}, /no such file or directory/);
