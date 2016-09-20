@@ -61,7 +61,7 @@ NAN_METHOD(verify) {
 
   // create store
   store = X509_STORE_new();
-  if (!store) {
+  if (store == NULL) {
     X509_STORE_free(store);
     BIO_free_all(cert_bio);
     Nan::ThrowError("Failed to create X509 certificate store.");
@@ -85,10 +85,9 @@ NAN_METHOD(verify) {
     Nan::ThrowError("Error reading file");
   }
 
-
   // read from BIO
   cert = PEM_read_bio_X509(cert_bio, NULL, 0, NULL);
-  if (!cert) {
+  if (cert == NULL) {
     X509_STORE_free(store);
     X509_free(cert);
     X509_STORE_CTX_free(verify_ctx);

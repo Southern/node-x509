@@ -113,11 +113,12 @@ cert = { subject:
 ```
 
 
-#### x509.verify(`cert`, `CABundlePath`)
+#### x509.verify(`cert`, `CABundlePath`, function(err, result){ /*...*/})
 
 Performs basic certificate validation against a bundle of ca certificates.
 
-Returns true if validation is succesful, throws an error otherwise.
+It accepts an error-first callback as first argument. If the error is null, then
+the certificate is valid.
 
 The error messages are the same returned by openssl: [x509_verify_cert_error_string](https://www.openssl.org/docs/manmaster/crypto/X509_STORE_CTX_get_error.html)
 
@@ -130,7 +131,8 @@ const x509 = require('x509');
 
 x509.verify(
   __dirname + '/certs/user.com.crt',
-  __dirname + 'enduser-example.com.chain'
+  __dirname + 'enduser-example.com.chain',
+  function(err, result){ /*...*/}
 );
 
 ```
