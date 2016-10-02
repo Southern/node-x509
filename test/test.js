@@ -17,26 +17,24 @@ x509.verify(
   path.join(__dirname, 'certs/enduser-example.com.crt'),
   path.join(__dirname, 'CA_chains/enduser-example.com.chain'),
   function (err) {
-    assert(err === null);
+    assert.strictEqual(err, null);
   }
 );
+
 
 
 x509.verify(
   path.join(__dirname, 'certs/acaline.com.crt'),
   path.join(__dirname, 'CA_chains/enduser-example.com.chain'),
   function (err, result) {
-    assert(err instanceof Error);
-    assert(err.message === 'unable to get local issuer certificate');
+    assert.throws(assert.ifError.bind(null, err), /unable to get local issuer/)
   }
 );
-
 
 x509.verify(
   path.join(__dirname, 'certs/notexisting.com.crt'),
   path.join(__dirname, 'CA_chains/enduser-example.com.chain'),
   function (err, result) {
-    assert(err instanceof Error);
-    assert(err.message.match(/ENOENT: no such file or directory/));
+    assert.throws(assert.ifError.bind(null, err), /ENOENT/)
   }
 );

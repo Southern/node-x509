@@ -8,10 +8,10 @@ exports.getIssuer = x509.getIssuer;
 
 exports.verify = function(certPath, CABundlePath, cb) {
   if (!certPath) {
-    throw new Error('Certificate path is required');
+    throw new TypeError('Certificate path is required');
   }
   if (!CABundlePath) {
-    throw new Error('CA Bundle path is required');
+    throw new TypeError('CA Bundle path is required');
   }
 
   fs.stat(certPath, function(certPathErr) {
@@ -33,7 +33,7 @@ exports.verify = function(certPath, CABundlePath, cb) {
       catch (verificationError) {
         cb(verificationError);
       }
-    })
+    });
   });
 };
 
