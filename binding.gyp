@@ -36,7 +36,7 @@
           'defines': [
             'uint=unsigned int',
           ],
-          'libraries': [ 
+          'libraries': [
             '-l<(openssl_root)/lib/libeay32.lib',
           ],
           'include_dirs': [
@@ -48,7 +48,7 @@
             '<(node_root_dir)/deps/openssl/openssl/include'
           ],
         }],
-      ],	  
+      ],
     }
   ]
 }
