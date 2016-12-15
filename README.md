@@ -120,7 +120,7 @@ Performs basic certificate validation against a bundle of ca certificates.
 It accepts an error-first callback as first argument. If the error is null, then
 the certificate is valid.
 
-The error messages are the same returned by openssl: [x509_verify_cert_error_string](https://www.openssl.org/docs/manmaster/crypto/X509_STORE_CTX_get_error.html)
+The error messages are the same returned by openssl: [x509_verify_cert_error_string](https://www.openssl.org/docs/man1.0.2/crypto/X509_STORE_CTX_get_error.html)
 
 
 **Note:**
