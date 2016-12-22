@@ -286,16 +286,21 @@ Local<Value> try_parse(const std::string& dataString) {
 
   if (pkey_nid == NID_rsaEncryption) {
     char *rsa_e_dec, *rsa_n_hex;
+    uint32_t rsa_key_length_int;
     RSA *rsa_key;
     rsa_key = pkey->pkey.rsa;
     rsa_e_dec = BN_bn2dec(rsa_key->e);
     rsa_n_hex = BN_bn2hex(rsa_key->n);
+    rsa_key_length_int = RSA_size(rsa_key) * 8;
     Nan::Set(publicKey,
       Nan::New<String>("e").ToLocalChecked(),
       Nan::New<String>(rsa_e_dec).ToLocalChecked());
     Nan::Set(publicKey,
       Nan::New<String>("n").ToLocalChecked(),
       Nan::New<String>(rsa_n_hex).ToLocalChecked());
+    Nan::Set(publicKey,
+      Nan::New<String>("bitSize").ToLocalChecked(),
+      Nan::New<Uint32>(rsa_key_length_int));
   }
   Nan::Set(exports, Nan::New<String>("publicKey").ToLocalChecked(), publicKey);
   EVP_PKEY_free(pkey);
