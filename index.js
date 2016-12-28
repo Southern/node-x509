@@ -6,34 +6,46 @@ exports.getAltNames = x509.getAltNames;
 exports.getSubject = x509.getSubject;
 exports.getIssuer = x509.getIssuer;
 
-exports.verify = function(certPath, CABundlePath, cb) {
-  if (!certPath) {
+function x509_verify(certPathOrString, CABundlePath, cb) {
+  fs.stat(CABundlePath, function(bundlePathErr) {
+    if (bundlePathErr) {
+      return cb(bundlePathErr);
+    }
+
+    try {
+      var ret = x509.parseCert(String(certPathOrString));
+    }
+    catch(Exception) {
+      return cb(new TypeError('Unable to parse certificate.'));
+    }
+
+    try {
+      x509.verify(certPathOrString, CABundlePath);
+      cb(null);
+    }
+    catch (verificationError) {
+      cb(verificationError);
+    }
+  });
+}
+
+exports.verify = function(certPathOrString, CABundlePath, cb) {
+  if (!certPathOrString) {
     throw new TypeError('Certificate path is required');
   }
   if (!CABundlePath) {
     throw new TypeError('CA Bundle path is required');
   }
 
-  fs.stat(certPath, function(certPathErr) {
+  if (String(certPathOrString).startsWith('---')) {
+    return x509_verify(String(certPathOrString), CABundlePath, cb);
+  }
 
+  fs.stat(certPathOrString, function(certPathErr) {
     if (certPathErr) {
       return cb(certPathErr);
     }
-
-    fs.stat(CABundlePath, function(bundlePathErr) {
-
-      if (bundlePathErr) {
-        return cb(bundlePathErr);
-      }
-
-      try {
-        x509.verify(certPath, CABundlePath);
-        cb(null);
-      }
-      catch (verificationError) {
-        cb(verificationError);
-      }
-    });
+    return x509_verify(certPathOrString, CABundlePath, cb);
   });
 };
 

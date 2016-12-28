@@ -51,19 +51,18 @@ NAN_METHOD(verify) {
   Nan::HandleScope scope;
   OpenSSL_add_all_algorithms();
 
-  std::string cert_path = *String::Utf8Value(info[0]->ToString());
+  std::string cert_path_or_buffer = *String::Utf8Value(info[0]->ToString());
   std::string ca_bundlestr = *String::Utf8Value(info[1]->ToString());
 
   X509_STORE *store = NULL;
   X509_STORE_CTX *verify_ctx = NULL;
   X509 *cert = NULL;
-  BIO *cert_bio = BIO_new(BIO_s_file());
+  BIO *cert_bio = NULL;
 
   // create store
   store = X509_STORE_new();
   if (store == NULL) {
     X509_STORE_free(store);
-    BIO_free_all(cert_bio);
     Nan::ThrowError("Failed to create X509 certificate store.");
   }
 
@@ -71,18 +70,45 @@ NAN_METHOD(verify) {
 
   if (verify_ctx == NULL) {
     X509_STORE_free(store);
-    BIO_free_all(cert_bio);
     Nan::ThrowError("Failed to create X509 verification context.");
   }
 
   // load file in BIO
-  int ret = BIO_read_filename(cert_bio, cert_path.c_str());
-  if (ret != 1) {
-    X509_STORE_free(store);
-    X509_free(cert);
-    BIO_free_all(cert_bio);
-    X509_STORE_CTX_free(verify_ctx);
-    Nan::ThrowError("Error reading file");
+  int ret;
+  if (cert_path_or_buffer.c_str()[0] == '-') {
+    cert_bio = BIO_new(BIO_s_mem());
+    if (cert_bio == NULL) {
+      X509_STORE_free(store);
+      X509_free(cert);
+      X509_STORE_CTX_free(verify_ctx);
+      Nan::ThrowError("Failed to create certificate buffer");
+    }
+
+    ret = BIO_puts(cert_bio, cert_path_or_buffer.c_str());
+    if (ret <= 0) {
+      X509_STORE_free(store);
+      X509_free(cert);
+      BIO_free_all(cert_bio);
+      X509_STORE_CTX_free(verify_ctx);
+      Nan::ThrowError("Error loading certificate");
+    }
+  } else {
+    cert_bio = BIO_new(BIO_s_file());
+    if (cert_bio == NULL) {
+      X509_STORE_free(store);
+      X509_free(cert);
+      X509_STORE_CTX_free(verify_ctx);
+      Nan::ThrowError("Failed to create certificate buffer");
+    }
+
+    ret = BIO_read_filename(cert_bio, cert_path_or_buffer.c_str());
+    if (ret != 1) {
+      X509_STORE_free(store);
+      X509_free(cert);
+      BIO_free_all(cert_bio);
+      X509_STORE_CTX_free(verify_ctx);
+      Nan::ThrowError("Error reading certificate file");
+    }
   }
 
   // read from BIO
