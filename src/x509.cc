@@ -122,13 +122,54 @@ NAN_METHOD(verify) {
   }
 
   // load CA bundle
-  ret = X509_STORE_load_locations(store, ca_bundlestr.c_str(), NULL);
-  if (ret != 1) {
-    X509_STORE_free(store);
-    X509_free(cert);
-    BIO_free_all(cert_bio);
-    X509_STORE_CTX_free(verify_ctx);
-    Nan::ThrowError("Error loading CA chain file");
+  BIO *bio_ca = NULL;
+  if (ca_bundlestr.c_str()[0] == '-') {
+    STACK_OF(X509_INFO) *ca_inf_stack;
+    BIO *bio_ca = BIO_new(BIO_s_mem());
+    if (bio_ca == NULL) {
+      X509_STORE_free(store);
+      X509_free(cert);
+      X509_STORE_CTX_free(verify_ctx);
+      BIO_free_all(cert_bio);
+      Nan::ThrowError("Failed to create ca buffer");
+    }
+    ret = BIO_puts(bio_ca, ca_bundlestr.c_str());
+    if (ret == -1) {
+      X509_STORE_free(store);
+      X509_free(cert);
+      X509_STORE_CTX_free(verify_ctx);
+      BIO_free_all(cert_bio);
+      BIO_free_all(bio_ca);
+      Nan::ThrowError("Failed to load ca buffer");
+    }
+    ca_inf_stack = PEM_X509_INFO_read_bio(bio_ca, NULL, NULL, NULL);
+    if (ca_inf_stack == NULL) {
+      X509_STORE_free(store);
+      X509_free(cert);
+      X509_STORE_CTX_free(verify_ctx);
+      BIO_free_all(cert_bio);
+      BIO_free_all(bio_ca);
+      Nan::ThrowError("Failed to load ca");
+    }
+    // Loop through all certs in the CA
+    for (int i = 0; i < sk_X509_INFO_num(ca_inf_stack); i++) {
+      X509_INFO *ca_inf = sk_X509_INFO_value(ca_inf_stack, i);
+      if (ca_inf->x509) {
+        X509_STORE_add_cert(store, ca_inf->x509);
+      }
+      if(ca_inf->crl) {
+        X509_STORE_add_crl(store, ca_inf->crl);
+      }
+    }
+  } else {
+    ret = X509_STORE_load_locations(store, ca_bundlestr.c_str(), NULL);
+    if (ret != 1) {
+      X509_STORE_free(store);
+      X509_free(cert);
+      BIO_free_all(cert_bio);
+      X509_STORE_CTX_free(verify_ctx);
+      Nan::ThrowError("Error loading CA chain file");
+    }
   }
 
   // verify
@@ -143,8 +184,11 @@ NAN_METHOD(verify) {
   X509_free(cert);
   X509_STORE_CTX_free(verify_ctx);
   BIO_free_all(cert_bio);
+  if (bio_ca != NULL) {
+    BIO_free_all(bio_ca);
+  }
 
- info.GetReturnValue().Set(Nan::New(true));
+  info.GetReturnValue().Set(Nan::New(true));
 }
 
 

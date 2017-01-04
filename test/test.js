@@ -31,6 +31,14 @@ x509.verify( fs.readFileSync(path.join(__dirname, 'certs/enduser-example.com.crt
   }
 );
 
+x509.verify( fs.readFileSync(path.join(__dirname, 'certs/enduser-example.com.crt')),
+  fs.readFileSync(path.join(__dirname, 'CA_chains/enduser-example.com.chain')),
+  function (err) {
+    console.log('x509 verify string input');
+    assert.strictEqual(err, null);
+  }
+);
+
 x509.verify(
   fs.readFileSync(path.join(__dirname, 'certs/enduser-example-bad.com.crt')),
   path.join(__dirname, 'CA_chains/enduser-example.com.chain'),
