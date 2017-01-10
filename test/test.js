@@ -13,55 +13,43 @@ fs.readdirSync(path.join(__dirname, 'certs')).forEach(function (file) {
   console.log();
 });
 
+function fillPath(filename) {
+  return path.join(__dirname, filename)
+}
 
-x509.verify(
-  path.join(__dirname, 'certs/enduser-example.com.crt'),
-  path.join(__dirname, 'CA_chains/enduser-example.com.chain'),
+function loadFile(filename) {
+  return fs.readFileSync(fillPath(filename))
+}
+
+
+function x509_verify_test(cert_path, ca_path, cb) {
+  x509.verify(fillPath(cert_path), fillPath(ca_path), cb);
+  x509.verify(loadFile(cert_path), fillPath(ca_path), cb);
+  x509.verify(fillPath(cert_path), loadFile(ca_path), cb);
+  x509.verify(loadFile(cert_path), loadFile(ca_path), cb);
+}
+
+x509_verify_test(
+  'certs/enduser-example.com.crt',
+  'CA_chains/enduser-example.com.chain',
   function (err) {
     console.log('x509 verify');
     assert.strictEqual(err, null);
   }
 );
 
-x509.verify( fs.readFileSync(path.join(__dirname, 'certs/enduser-example.com.crt')),
-  path.join(__dirname, 'CA_chains/enduser-example.com.chain'),
-  function (err) {
-    console.log('x509 verify string input');
-    assert.strictEqual(err, null);
-  }
-);
-
-x509.verify( fs.readFileSync(path.join(__dirname, 'certs/enduser-example.com.crt')),
-  fs.readFileSync(path.join(__dirname, 'CA_chains/enduser-example.com.chain')),
-  function (err) {
-    console.log('x509 verify string input');
-    assert.strictEqual(err, null);
-  }
-);
-
-x509.verify(
-  fs.readFileSync(path.join(__dirname, 'certs/enduser-example-bad.com.crt')),
-  path.join(__dirname, 'CA_chains/enduser-example.com.chain'),
+x509_verify_test(
+  'certs/enduser-example-bad.com.crt',
+  'CA_chains/enduser-example.com.chain',
   function (err) {
     console.log('x509 verify invalid cert');
     assert.throws(assert.ifError.bind(null, err), /Unable to parse certificate./)
   }
 );
 
-x509.verify(
-  '--- BEGIN CERTIFICATE ---\n' +
-  'this is not the certificate you are looking for...\n' +
-  '--- END CERTIFICATE ---',
-  path.join(__dirname, 'CA_chains/enduser-example.com.chain'),
-  function (err) {
-    console.log('x509 verify invalid cert string input');
-    assert.throws(assert.ifError.bind(null, err), /Unable to parse certificate./)
-  }
-);
-
-x509.verify(
-  fs.readFileSync(path.join(__dirname, 'certs/enduser-example-malformed.com.crt')),
-  path.join(__dirname, 'CA_chains/enduser-example.com.chain'),
+x509_verify_test(
+  'certs/enduser-example-malformed.com.crt',
+  'CA_chains/enduser-example.com.chain',
   function (err) {
     console.log('x509 verify altered cert');
     assert.throws(assert.ifError.bind(null, err), /certificate signature failure/)
@@ -69,9 +57,9 @@ x509.verify(
 );
 
 
-x509.verify(
-  path.join(__dirname, 'certs/acaline.com.crt'),
-  path.join(__dirname, 'CA_chains/enduser-example.com.chain'),
+x509_verify_test(
+  'certs/acaline.com.crt',
+  'CA_chains/enduser-example.com.chain',
   function (err, result) {
     console.log('x509 verify no local issuer');
     assert.throws(assert.ifError.bind(null, err), /unable to get local issuer/)
@@ -79,8 +67,8 @@ x509.verify(
 );
 
 x509.verify(
-  path.join(__dirname, 'certs/notexisting.com.crt'),
-  path.join(__dirname, 'CA_chains/enduser-example.com.chain'),
+  'certs/notexisting.com.crt',
+  'CA_chains/enduser-example.com.chain',
   function (err, result) {
     console.log('x509 verify no local file');
     assert.throws(assert.ifError.bind(null, err), /ENOENT/)
