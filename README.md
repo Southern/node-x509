@@ -113,7 +113,7 @@ cert = { subject:
 ```
 
 
-#### x509.verify(`cert`, `CABundlePath`, function(err, result){ /*...*/})
+#### x509.verify(`cert`, `CABundle`, function(err, result){ /*...*/})
 
 Performs basic certificate validation against a bundle of ca certificates.
 
@@ -122,9 +122,7 @@ the certificate is valid.
 
 The error messages are the same returned by openssl: [x509_verify_cert_error_string](https://www.openssl.org/docs/manmaster/crypto/X509_STORE_CTX_get_error.html)
 
-
-**Note:**
-As now, this function only accepts absolute paths to existing files as arguments
+The cert and CABundle arguments may be any combination of paths or buffers.
 
 ```js
 const x509 = require('x509');
