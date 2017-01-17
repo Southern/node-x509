@@ -58,6 +58,12 @@ function x509_verify_cert_path_ca_path(certPath, caPath, cb) {
 }
 
 exports.verify = function(certPathOrString, CABundlePathOrString, cb) {
+  if (!String.prototype.startsWith) {
+    String.prototype.startsWith = function(searchString, position){
+      position = position || 0;
+      return this.substr(position, searchString.length) === searchString;
+    };
+  }
   if (!certPathOrString) {
     throw new TypeError('Certificate path is required');
   }
