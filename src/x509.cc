@@ -51,31 +51,13 @@ NAN_METHOD(verify) {
   Nan::HandleScope scope;
   OpenSSL_add_all_algorithms();
 
-  std::string cert_path = *String::Utf8Value(info[0]->ToString());
-  std::string ca_path = *String::Utf8Value(info[1]->ToString());
-  std::string cert_buffer = *String::Utf8Value(info[2]->ToString());
-  std::string ca_buffer = *String::Utf8Value(info[3]->ToString());
+  std::string cert_buffer = *String::Utf8Value(info[0]->ToString());
+  std::string ca_buffer = *String::Utf8Value(info[1]->ToString());
 
   X509_STORE *store = NULL;
   X509_STORE_CTX *verify_ctx = NULL;
   X509 *cert = NULL;
   BIO *cert_bio = NULL;
-
-  if (cert_path.compare("null") != 0 && cert_buffer.compare("null") != 0) {
-    Nan::ThrowError("Both cert path and buffer supplied, only one may be specified.");
-  }
-
-  if (cert_path.compare("null") == 0 && cert_buffer.compare("null") == 0) {
-    Nan::ThrowError("Certificate path or buffer not specified.");
-  }
-
-  if (ca_path.compare("null") != 0 && ca_buffer.compare("null") != 0) {
-    Nan::ThrowError("Both ca path and buffer supplied, only one may be specified.");
-  }
-
-  if (ca_path.compare("null") == 0 && ca_buffer.compare("null") == 0) {
-    Nan::ThrowError("CA path or buffer not specified.");
-  }
 
   // create store
   store = X509_STORE_new();
@@ -91,42 +73,22 @@ NAN_METHOD(verify) {
     Nan::ThrowError("Failed to create X509 verification context.");
   }
 
-  // load file in BIO
-  int ret;
-  if (cert_buffer.compare("null")) {
-    cert_bio = BIO_new(BIO_s_mem());
-    if (cert_bio == NULL) {
-      X509_STORE_free(store);
-      X509_free(cert);
-      X509_STORE_CTX_free(verify_ctx);
-      Nan::ThrowError("Failed to create certificate buffer");
-    }
+  // load cert buffer into BIO
+  cert_bio = BIO_new(BIO_s_mem());
+  if (cert_bio == NULL) {
+    X509_STORE_free(store);
+    X509_free(cert);
+    X509_STORE_CTX_free(verify_ctx);
+    Nan::ThrowError("Failed to create certificate buffer");
+  }
 
-    ret = BIO_puts(cert_bio, cert_buffer.c_str());
-    if (ret <= 0) {
-      X509_STORE_free(store);
-      X509_free(cert);
-      BIO_free_all(cert_bio);
-      X509_STORE_CTX_free(verify_ctx);
-      Nan::ThrowError("Error loading certificate");
-    }
-  } else {
-    cert_bio = BIO_new(BIO_s_file());
-    if (cert_bio == NULL) {
-      X509_STORE_free(store);
-      X509_free(cert);
-      X509_STORE_CTX_free(verify_ctx);
-      Nan::ThrowError("Failed to create certificate buffer");
-    }
-
-    ret = BIO_read_filename(cert_bio, cert_path.c_str());
-    if (ret != 1) {
-      X509_STORE_free(store);
-      X509_free(cert);
-      BIO_free_all(cert_bio);
-      X509_STORE_CTX_free(verify_ctx);
-      Nan::ThrowError("Error reading certificate file");
-    }
+  int ret = BIO_puts(cert_bio, cert_buffer.c_str());
+  if (ret <= 0) {
+    X509_STORE_free(store);
+    X509_free(cert);
+    BIO_free_all(cert_bio);
+    X509_STORE_CTX_free(verify_ctx);
+    Nan::ThrowError("Error loading certificate");
   }
 
   // read from BIO
@@ -140,53 +102,41 @@ NAN_METHOD(verify) {
   }
 
   // load CA bundle from memory or path
-  BIO *bio_ca = NULL;
-  if (ca_buffer.compare("null")) {
-    STACK_OF(X509_INFO) *ca_inf_stack;
-    BIO *bio_ca = BIO_new(BIO_s_mem());
-    if (bio_ca == NULL) {
-      X509_STORE_free(store);
-      X509_free(cert);
-      X509_STORE_CTX_free(verify_ctx);
-      BIO_free_all(cert_bio);
-      Nan::ThrowError("Failed to create ca buffer");
+  STACK_OF(X509_INFO) *ca_inf_stack;
+  BIO *bio_ca = BIO_new(BIO_s_mem());
+  if (bio_ca == NULL) {
+    X509_STORE_free(store);
+    X509_free(cert);
+    X509_STORE_CTX_free(verify_ctx);
+    BIO_free_all(cert_bio);
+    Nan::ThrowError("Failed to create ca buffer");
+  }
+  ret = BIO_puts(bio_ca, ca_buffer.c_str());
+  if (ret == -1) {
+    X509_STORE_free(store);
+    X509_free(cert);
+    X509_STORE_CTX_free(verify_ctx);
+    BIO_free_all(cert_bio);
+    BIO_free_all(bio_ca);
+    Nan::ThrowError("Failed to load ca buffer");
+  }
+  ca_inf_stack = PEM_X509_INFO_read_bio(bio_ca, NULL, NULL, NULL);
+  if (ca_inf_stack == NULL) {
+    X509_STORE_free(store);
+    X509_free(cert);
+    X509_STORE_CTX_free(verify_ctx);
+    BIO_free_all(cert_bio);
+    BIO_free_all(bio_ca);
+    Nan::ThrowError("Failed to load ca");
+  }
+  // Loop through all certs in the CA
+  for (int i = 0; i < sk_X509_INFO_num(ca_inf_stack); i++) {
+    X509_INFO *ca_inf = sk_X509_INFO_value(ca_inf_stack, i);
+    if (ca_inf->x509) {
+      X509_STORE_add_cert(store, ca_inf->x509);
     }
-    ret = BIO_puts(bio_ca, ca_buffer.c_str());
-    if (ret == -1) {
-      X509_STORE_free(store);
-      X509_free(cert);
-      X509_STORE_CTX_free(verify_ctx);
-      BIO_free_all(cert_bio);
-      BIO_free_all(bio_ca);
-      Nan::ThrowError("Failed to load ca buffer");
-    }
-    ca_inf_stack = PEM_X509_INFO_read_bio(bio_ca, NULL, NULL, NULL);
-    if (ca_inf_stack == NULL) {
-      X509_STORE_free(store);
-      X509_free(cert);
-      X509_STORE_CTX_free(verify_ctx);
-      BIO_free_all(cert_bio);
-      BIO_free_all(bio_ca);
-      Nan::ThrowError("Failed to load ca");
-    }
-    // Loop through all certs in the CA
-    for (int i = 0; i < sk_X509_INFO_num(ca_inf_stack); i++) {
-      X509_INFO *ca_inf = sk_X509_INFO_value(ca_inf_stack, i);
-      if (ca_inf->x509) {
-        X509_STORE_add_cert(store, ca_inf->x509);
-      }
-      if(ca_inf->crl) {
-        X509_STORE_add_crl(store, ca_inf->crl);
-      }
-    }
-  } else {
-    ret = X509_STORE_load_locations(store, ca_path.c_str(), NULL);
-    if (ret != 1) {
-      X509_STORE_free(store);
-      X509_free(cert);
-      BIO_free_all(cert_bio);
-      X509_STORE_CTX_free(verify_ctx);
-      Nan::ThrowError("Error loading CA chain file");
+    if(ca_inf->crl) {
+      X509_STORE_add_crl(store, ca_inf->crl);
     }
   }
 

@@ -6,16 +6,16 @@ exports.getAltNames = x509.getAltNames;
 exports.getSubject = x509.getSubject;
 exports.getIssuer = x509.getIssuer;
 
-function x509_verify(certPath, caPath, certBuffer, caBuffer, cb) {
+function x509_verify(certBuffer, caBuffer, cb) {
   try {
-    x509.parseCert(certPath || String(certBuffer));
+    x509.parseCert(String(certBuffer));
   }
   catch(Exception) {
     return cb(new TypeError('Unable to parse certificate.'));
   }
 
   try {
-    x509.verify(certPath, caPath, certBuffer, caBuffer);
+    x509.verify(certBuffer, caBuffer);
     cb(null);
   }
   catch (verificationError) {
@@ -24,14 +24,14 @@ function x509_verify(certPath, caPath, certBuffer, caBuffer, cb) {
 }
 
 function x509_verify_cert_buffer_ca_buffer(certBuffer, caBuffer, cb) {
-  x509_verify(null, null, certBuffer, caBuffer, cb);
+  x509_verify(certBuffer, caBuffer, cb);
 }
 function x509_verify_cert_buffer_ca_path(certBuffer, caPath, cb) {
   fs.stat(caPath, function(err) {
     if (err) {
       return cb(err);
     }
-    x509_verify(null, caPath, certBuffer, null, cb);
+    x509_verify(certBuffer, fs.readFileSync(caPath), cb);
   })
 
 }
@@ -40,7 +40,7 @@ function x509_verify_cert_path_ca_buffer(certPath, caBuffer, cb) {
     if (err) {
       return cb(err);
     }
-    x509_verify(certPath, null, null, caBuffer, cb);
+    x509_verify(fs.readFileSync(certPath), caBuffer, cb);
   })
 }
 function x509_verify_cert_path_ca_path(certPath, caPath, cb) {
@@ -52,7 +52,7 @@ function x509_verify_cert_path_ca_path(certPath, caPath, cb) {
       if (err) {
         return cb(err);
       }
-      x509_verify(certPath, caPath, null, null, cb);
+      x509_verify(fs.readFileSync(certPath), fs.readFileSync(caPath), cb);
     })
   })
 }
@@ -73,7 +73,7 @@ exports.verify = function(certPathOrString, CABundlePathOrString, cb) {
 
   if (String(certPathOrString).startsWith('-----BEGIN')) {
     if (String(CABundlePathOrString).startsWith('-----BEGIN')) {
-      return x509_verify_cert_buffer_ca_buffer(String(certPathOrString), CABundlePathOrString, cb);
+      return x509_verify(String(certPathOrString), CABundlePathOrString, cb);
     } else {
       return x509_verify_cert_buffer_ca_path(String(certPathOrString), CABundlePathOrString, cb);
     }
