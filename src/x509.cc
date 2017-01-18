@@ -61,6 +61,7 @@ NAN_METHOD(verify) {
   store = X509_STORE_new();
   if (store == NULL) {
     Nan::ThrowError("Failed to create X509 certificate store.");
+    return;
   }
 
   // create store context
@@ -68,6 +69,7 @@ NAN_METHOD(verify) {
   if (verify_ctx == NULL) {
     X509_STORE_free(store);
     Nan::ThrowError("Failed to create X509 verification context.");
+    return;
   }
 
   // load cert buffer into BIO
@@ -76,6 +78,7 @@ NAN_METHOD(verify) {
     X509_STORE_CTX_free(verify_ctx);
     X509_STORE_free(store);
     Nan::ThrowError("Failed to create certificate buffer");
+    return;
   }
 
   int ret = BIO_puts(cert_bio, cert_buffer.c_str());
@@ -84,6 +87,7 @@ NAN_METHOD(verify) {
     X509_STORE_CTX_free(verify_ctx);
     X509_STORE_free(store);
     Nan::ThrowError("Error loading certificate");
+    return;
   }
 
   // read from BIO
@@ -93,6 +97,7 @@ NAN_METHOD(verify) {
     X509_STORE_CTX_free(verify_ctx);
     X509_STORE_free(store);
     Nan::ThrowError("Failed to load cert");
+    return;
   }
 
   // load CA bundle from memory or path
@@ -104,6 +109,7 @@ NAN_METHOD(verify) {
     X509_STORE_CTX_free(verify_ctx);
     X509_STORE_free(store);
     Nan::ThrowError("Failed to create ca buffer");
+    return;
   }
   ret = BIO_puts(bio_ca, ca_buffer.c_str());
   if (ret == -1) {
@@ -113,6 +119,7 @@ NAN_METHOD(verify) {
     X509_STORE_CTX_free(verify_ctx);
     X509_STORE_free(store);
     Nan::ThrowError("Failed to load ca buffer");
+    return;
   }
   ca_inf_stack = PEM_X509_INFO_read_bio(bio_ca, NULL, NULL, NULL);
   if (ca_inf_stack == NULL) {
@@ -122,6 +129,7 @@ NAN_METHOD(verify) {
     X509_STORE_CTX_free(verify_ctx);
     X509_STORE_free(store);
     Nan::ThrowError("Failed to load ca");
+    return;
   }
   // Loop through all certs in the CA
   for (int i = 0; i < sk_X509_INFO_num(ca_inf_stack); i++) {
@@ -138,7 +146,6 @@ NAN_METHOD(verify) {
   X509_STORE_CTX_init(verify_ctx, store, cert, NULL);
   ret = X509_verify_cert(verify_ctx);
 
-
   if (ret <= 0) {
     int verify_error = verify_ctx->error;
     sk_X509_INFO_pop_free(ca_inf_stack, X509_INFO_free);
@@ -148,6 +155,7 @@ NAN_METHOD(verify) {
     X509_STORE_CTX_free(verify_ctx);
     X509_STORE_free(store);
     Nan::ThrowError(X509_verify_cert_error_string(verify_error));
+    return;
   }
 
   sk_X509_INFO_pop_free(ca_inf_stack, X509_INFO_free);
