@@ -45,64 +45,101 @@ std::string parse_args(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   return *String::Utf8Value(info[0]->ToString());
 }
 
-
-
 NAN_METHOD(verify) {
   Nan::HandleScope scope;
   OpenSSL_add_all_algorithms();
 
-  std::string cert_path = *String::Utf8Value(info[0]->ToString());
-  std::string ca_bundlestr = *String::Utf8Value(info[1]->ToString());
+  std::string cert_buffer = *String::Utf8Value(info[0]->ToString());
+  std::string ca_buffer = *String::Utf8Value(info[1]->ToString());
 
   X509_STORE *store = NULL;
   X509_STORE_CTX *verify_ctx = NULL;
   X509 *cert = NULL;
-  BIO *cert_bio = BIO_new(BIO_s_file());
+  BIO *cert_bio = NULL;
 
   // create store
   store = X509_STORE_new();
   if (store == NULL) {
-    X509_STORE_free(store);
-    BIO_free_all(cert_bio);
     Nan::ThrowError("Failed to create X509 certificate store.");
+    return;
   }
 
+  // create store context
   verify_ctx = X509_STORE_CTX_new();
-
   if (verify_ctx == NULL) {
     X509_STORE_free(store);
-    BIO_free_all(cert_bio);
     Nan::ThrowError("Failed to create X509 verification context.");
+    return;
   }
 
-  // load file in BIO
-  int ret = BIO_read_filename(cert_bio, cert_path.c_str());
-  if (ret != 1) {
+  // load cert buffer into BIO
+  cert_bio = BIO_new(BIO_s_mem());
+  if (cert_bio == NULL) {
+    X509_STORE_CTX_free(verify_ctx);
     X509_STORE_free(store);
-    X509_free(cert);
+    Nan::ThrowError("Failed to create certificate buffer");
+    return;
+  }
+
+  int ret = BIO_puts(cert_bio, cert_buffer.c_str());
+  if (ret <= 0) {
     BIO_free_all(cert_bio);
     X509_STORE_CTX_free(verify_ctx);
-    Nan::ThrowError("Error reading file");
+    X509_STORE_free(store);
+    Nan::ThrowError("Error loading certificate");
+    return;
   }
 
   // read from BIO
   cert = PEM_read_bio_X509(cert_bio, NULL, 0, NULL);
   if (cert == NULL) {
-    X509_STORE_free(store);
-    X509_free(cert);
-    X509_STORE_CTX_free(verify_ctx);
     BIO_free_all(cert_bio);
+    X509_STORE_CTX_free(verify_ctx);
+    X509_STORE_free(store);
     Nan::ThrowError("Failed to load cert");
+    return;
   }
 
-  // load CA bundle
-  ret = X509_STORE_load_locations(store, ca_bundlestr.c_str(), NULL);
-  if (ret != 1) {
-    X509_STORE_free(store);
+  // load CA bundle from memory or path
+  STACK_OF(X509_INFO) *ca_inf_stack;
+  BIO *bio_ca = BIO_new(BIO_s_mem());
+  if (bio_ca == NULL) {
     X509_free(cert);
     BIO_free_all(cert_bio);
     X509_STORE_CTX_free(verify_ctx);
-    Nan::ThrowError("Error loading CA chain file");
+    X509_STORE_free(store);
+    Nan::ThrowError("Failed to create ca buffer");
+    return;
+  }
+  ret = BIO_puts(bio_ca, ca_buffer.c_str());
+  if (ret == -1) {
+    BIO_free_all(bio_ca);
+    X509_free(cert);
+    BIO_free_all(cert_bio);
+    X509_STORE_CTX_free(verify_ctx);
+    X509_STORE_free(store);
+    Nan::ThrowError("Failed to load ca buffer");
+    return;
+  }
+  ca_inf_stack = PEM_X509_INFO_read_bio(bio_ca, NULL, NULL, NULL);
+  if (ca_inf_stack == NULL) {
+    BIO_free_all(bio_ca);
+    X509_free(cert);
+    BIO_free_all(cert_bio);
+    X509_STORE_CTX_free(verify_ctx);
+    X509_STORE_free(store);
+    Nan::ThrowError("Failed to load ca");
+    return;
+  }
+  // Loop through all certs in the CA
+  for (int i = 0; i < sk_X509_INFO_num(ca_inf_stack); i++) {
+    X509_INFO *ca_inf = sk_X509_INFO_value(ca_inf_stack, i);
+    if (ca_inf->x509) {
+      X509_STORE_add_cert(store, ca_inf->x509);
+    }
+    if(ca_inf->crl) {
+      X509_STORE_add_crl(store, ca_inf->crl);
+    }
   }
 
   // verify
@@ -110,15 +147,25 @@ NAN_METHOD(verify) {
   ret = X509_verify_cert(verify_ctx);
 
   if (ret <= 0) {
-    Nan::ThrowError(X509_verify_cert_error_string(verify_ctx->error));
+    int verify_error = verify_ctx->error;
+    sk_X509_INFO_pop_free(ca_inf_stack, X509_INFO_free);
+    BIO_free_all(bio_ca);
+    X509_free(cert);
+    BIO_free_all(cert_bio);
+    X509_STORE_CTX_free(verify_ctx);
+    X509_STORE_free(store);
+    Nan::ThrowError(X509_verify_cert_error_string(verify_error));
+    return;
   }
 
-  X509_STORE_free(store);
+  sk_X509_INFO_pop_free(ca_inf_stack, X509_INFO_free);
+  BIO_free_all(bio_ca);
   X509_free(cert);
-  X509_STORE_CTX_free(verify_ctx);
   BIO_free_all(cert_bio);
+  X509_STORE_CTX_free(verify_ctx);
+  X509_STORE_free(store);
 
- info.GetReturnValue().Set(Nan::New(true));
+  info.GetReturnValue().Set(Nan::New(true));
 }
 
 
@@ -296,6 +343,8 @@ Local<Value> try_parse(const std::string& dataString) {
     Nan::Set(publicKey,
       Nan::New<String>("n").ToLocalChecked(),
       Nan::New<String>(rsa_n_hex).ToLocalChecked());
+    OPENSSL_free(rsa_e_dec);
+    OPENSSL_free(rsa_n_hex);
   }
   Nan::Set(exports, Nan::New<String>("publicKey").ToLocalChecked(), publicKey);
   EVP_PKEY_free(pkey);
@@ -324,6 +373,7 @@ Local<Value> try_parse(const std::string& dataString) {
         Nan::Set(altNames, i, Nan::New<String>(name).ToLocalChecked());
       }
     }
+    sk_GENERAL_NAME_pop_free(names, GENERAL_NAME_free);
   }
   Nan::Set(exports, Nan::New<String>("altNames").ToLocalChecked(), altNames);
 
@@ -356,7 +406,8 @@ Local<Value> try_parse(const std::string& dataString) {
     BIO_get_mem_ptr(ext_bio, &bptr);
     BIO_set_close(ext_bio, BIO_CLOSE);
 
-    char *data = (char*) malloc(bptr->length + 1);
+    char *data_buffer = (char*) malloc(bptr->length + 1);
+    char *data = data_buffer;
     BUF_strlcpy(data, bptr->data, bptr->length + 1);
     data = trim(data, bptr->length);
 
@@ -377,6 +428,7 @@ Local<Value> try_parse(const std::string& dataString) {
         Nan::New<String>(real_name((char*)c_ext_name)).ToLocalChecked(),
         Nan::New<String>(data).ToLocalChecked());
     }
+    free(data_buffer);
   }
   Nan::Set(exports,
     Nan::New<String>("extensions").ToLocalChecked(), extensions);
