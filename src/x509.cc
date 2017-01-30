@@ -1,4 +1,5 @@
 #include <cstring>
+#include <sstream>
 #include <x509.h>
 
 using namespace v8;
@@ -235,6 +236,13 @@ Local<Value> try_parse(const std::string& dataString) {
   Nan::Set(exports,
     Nan::New<String>("notAfter").ToLocalChecked(),
     parse_date(X509_get_notAfter(cert)));
+
+  // Subject hash
+  std::stringstream stream;
+  stream << std::hex << X509_subject_name_hash(cert);
+  Nan::Set(exports,
+    Nan::New<String>("subjectHash").ToLocalChecked(),
+      Nan::New<String>(stream.str()).ToLocalChecked());
 
   // Signature Algorithm
   int sig_alg_nid = OBJ_obj2nid(cert->sig_alg->algorithm);
