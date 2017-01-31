@@ -356,9 +356,9 @@ Local<Value> try_parse(const std::string& dataString) {
     BIO_get_mem_ptr(ext_bio, &bptr);
     BIO_set_close(ext_bio, BIO_CLOSE);
 
-    char *data = (char*) malloc(bptr->length + 1);
+    char *data = new char[bptr->length + 1];
     BUF_strlcpy(data, bptr->data, bptr->length + 1);
-    data = trim(data, bptr->length);
+    char *trimmed_data = trim(data, bptr->length);
 
     BIO_free(ext_bio);
 
@@ -368,15 +368,16 @@ Local<Value> try_parse(const std::string& dataString) {
       OBJ_obj2txt(extname, 100, (const ASN1_OBJECT *) obj, 1);
       Nan::Set(extensions,
         Nan::New<String>(real_name(extname)).ToLocalChecked(),
-        Nan::New<String>(data).ToLocalChecked());
+        Nan::New<String>(trimmed_data).ToLocalChecked());
 
     } else {
       const char *c_ext_name = OBJ_nid2ln(nid);
       // IFNULL_FAIL(c_ext_name, "invalid X509v3 extension name");
       Nan::Set(extensions,
         Nan::New<String>(real_name((char*)c_ext_name)).ToLocalChecked(),
-        Nan::New<String>(data).ToLocalChecked());
+        Nan::New<String>(trimmed_data).ToLocalChecked());
     }
+    delete[] data;
   }
   Nan::Set(exports,
     Nan::New<String>("extensions").ToLocalChecked(), extensions);
