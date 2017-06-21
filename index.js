@@ -1,3 +1,5 @@
+var Promise = require('promise-polyfill'); // Needed since we're supporting Node 0.10 environments
+
 var x509 = require('./build/Release/x509');
 var fs = require('fs');
 
@@ -6,40 +8,38 @@ exports.getAltNames = x509.getAltNames;
 exports.getSubject = x509.getSubject;
 exports.getIssuer = x509.getIssuer;
 
-exports.verify = function(certPath, CABundlePath, cb) {
-  if (!certPath) {
-    throw new TypeError('Certificate path is required');
+exports.verify = function(certPathOrString, CABundlePathOrString, cb) {
+  if (!certPathOrString) {
+    throw new TypeError('The certificate path or the certificate string itself is required');
   }
-  if (!CABundlePath) {
-    throw new TypeError('CA Bundle path is required');
+  if (!CABundlePathOrString) {
+    throw new TypeError('The certificate bundle path or the bundle string itself is required');
   }
 
-  fs.stat(certPath, function(certPathErr) {
+  Promise.all([
+    getPathOrStringBuffer(certPathOrString),
+    getPathOrStringBuffer(CABundlePathOrString)
+  ]).then(function(results){
+    var certBuffer = results[0];
+    var caBuffer = results[1];
 
-    if (certPathErr) {
-      return cb(certPathErr);
+    try {
+      var parsedCert = x509.parseCert(String(certBuffer));
+    } catch(Exception) {
+      return cb(new TypeError('Unable to parse certificate.'));
     }
 
-    fs.stat(CABundlePath, function(bundlePathErr) {
-
-      if (bundlePathErr) {
-        return cb(bundlePathErr);
-      }
-
-      try {
-        x509.verify(certPath, CABundlePath);
-        cb(null);
-      }
-      catch (verificationError) {
-        cb(verificationError);
-      }
-    });
-  });
+    try {
+      x509.verify(certBuffer, caBuffer);
+      cb(null, parsedCert); //Might as well pass back the parsed certificate on verify
+    } catch (verificationError) {
+      cb(verificationError);
+    }
+  }, cb);
 };
 
-
-exports.parseCert = function(path) {
-  var ret = x509.parseCert(path);
+exports.parseCert = function(pathOrBuffer) {
+  var ret = x509.parseCert(pathOrBuffer);
   var exts = {};
   for (var key in ret.extensions) {
     var newkey = key.replace('X509v3', '').replace(/ /g, '');
@@ -50,3 +50,18 @@ exports.parseCert = function(path) {
   ret.extensions = exts;
   return ret;
 };
+
+function getPathOrStringBuffer(pathOrString){
+  if(String(pathOrString).indexOf('-----BEGIN') === 0){
+    return Promise.resolve(Buffer(pathOrString, 'utf8'));
+  } else{
+    return new Promise(function(res, rej){
+      fs.readFile(pathOrString, function(err, fileBuffer){
+        if(err){
+          return rej(err);
+        }
+        res(fileBuffer)
+      })
+    });
+  }
+}

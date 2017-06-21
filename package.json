@@ -13,6 +13,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "nan": "2.2.0"
+    "nan": "2.2.0",
+    "promise-polyfill": "^6.0.2"
   }
 }
