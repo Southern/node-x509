@@ -1,3 +1,5 @@
+var Promise = require('promise-polyfill'); // Needed since we're supporting Node 0.10 environments
+
 var x509 = require('./build/Release/x509');
 var fs = require('fs');
 
@@ -6,86 +8,35 @@ exports.getAltNames = x509.getAltNames;
 exports.getSubject = x509.getSubject;
 exports.getIssuer = x509.getIssuer;
 
-function x509_verify(certBuffer, caBuffer, cb) {
-  try {
-    x509.parseCert(String(certBuffer));
-  }
-  catch(Exception) {
-    return cb(new TypeError('Unable to parse certificate.'));
-  }
-
-  try {
-    x509.verify(certBuffer, caBuffer);
-    cb(null);
-  }
-  catch (verificationError) {
-    cb(verificationError);
-  }
-}
-
-function x509_verify_cert_buffer_ca_buffer(certBuffer, caBuffer, cb) {
-  x509_verify(certBuffer, caBuffer, cb);
-}
-function x509_verify_cert_buffer_ca_path(certBuffer, caPath, cb) {
-  fs.stat(caPath, function(err) {
-    if (err) {
-      return cb(err);
-    }
-    x509_verify(certBuffer, fs.readFileSync(caPath), cb);
-  })
-
-}
-function x509_verify_cert_path_ca_buffer(certPath, caBuffer, cb) {
-  fs.stat(certPath, function(err) {
-    if (err) {
-      return cb(err);
-    }
-    x509_verify(fs.readFileSync(certPath), caBuffer, cb);
-  })
-}
-function x509_verify_cert_path_ca_path(certPath, caPath, cb) {
-  fs.stat(certPath, function(err) {
-    if (err) {
-      return cb(err);
-    }
-    fs.stat(caPath, function(err) {
-      if (err) {
-        return cb(err);
-      }
-      x509_verify(fs.readFileSync(certPath), fs.readFileSync(caPath), cb);
-    })
-  })
-}
-
 exports.verify = function(certPathOrString, CABundlePathOrString, cb) {
-  if (!String.prototype.startsWith) {
-    String.prototype.startsWith = function(searchString, position){
-      position = position || 0;
-      return this.substr(position, searchString.length) === searchString;
-    };
-  }
   if (!certPathOrString) {
-    throw new TypeError('Certificate path is required');
+    throw new TypeError('The certificate path or the certificate string itself is required');
   }
   if (!CABundlePathOrString) {
-    throw new TypeError('CA Bundle path is required');
+    throw new TypeError('The certificate bundle path or the bundle string itself is required');
   }
 
-  if (String(certPathOrString).startsWith('-----BEGIN')) {
-    if (String(CABundlePathOrString).startsWith('-----BEGIN')) {
-      return x509_verify(String(certPathOrString), CABundlePathOrString, cb);
-    } else {
-      return x509_verify_cert_buffer_ca_path(String(certPathOrString), CABundlePathOrString, cb);
+  Promise.all([
+    getPathOrStringBuffer(certPathOrString),
+    getPathOrStringBuffer(CABundlePathOrString)
+  ]).then(function(results){
+    var certBuffer = results[0];
+    var caBuffer = results[1];
+
+    try {
+      var parsedCert = x509.parseCert(String(certBuffer));
+    } catch(Exception) {
+      return cb(new TypeError('Unable to parse certificate.'));
     }
-  } else {
-    if (String(CABundlePathOrString).startsWith('-----BEGIN')) {
-      return x509_verify_cert_path_ca_buffer(String(certPathOrString), CABundlePathOrString, cb);
-    } else {
-      return x509_verify_cert_path_ca_path(String(certPathOrString), CABundlePathOrString, cb);
+
+    try {
+      x509.verify(certBuffer, caBuffer);
+      cb(null, parsedCert); //Might as well pass back the parsed certificate on verify
+    } catch (verificationError) {
+      cb(verificationError);
     }
-  }
+  }, cb);
 };
-
 
 exports.parseCert = function(pathOrBuffer) {
   var ret = x509.parseCert(pathOrBuffer);
@@ -99,3 +50,18 @@ exports.parseCert = function(pathOrBuffer) {
   ret.extensions = exts;
   return ret;
 };
+
+function getPathOrStringBuffer(pathOrString){
+  if(String(pathOrString).indexOf('-----BEGIN') === 0){
+    return Promise.resolve(Buffer(pathOrString, 'utf8'));
+  } else{
+    return new Promise(function(res, rej){
+      fs.readFile(pathOrString, function(err, fileBuffer){
+        if(err){
+          return rej(err);
+        }
+        res(fileBuffer)
+      })
+    });
+  }
+}
