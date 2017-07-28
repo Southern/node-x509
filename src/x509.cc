@@ -445,7 +445,8 @@ Local<Value> parse_date(ASN1_TIME *date) {
   Local<Object> global = Nan::GetCurrentContext()->Global();
   Local<Object> DateObject = Nan::Get(global,
     Nan::New<String>("Date").ToLocalChecked()).ToLocalChecked()->ToObject();
-  return scope.Escape(DateObject->CallAsConstructor(1, args));
+  Nan::MaybeLocal<Value> parsedDate = Nan::CallAsConstructor(DateObject, 1, args);
+  return scope.Escape(parsedDate.ToLocalChecked());
 }
 
 Local<Object> parse_name(X509_NAME *subject) {
