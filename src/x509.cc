@@ -383,8 +383,13 @@ Local<Value> try_parse(const std::string& dataString) {
     BIO_set_close(ext_bio, BIO_CLOSE);
 
     char *data = new char[bptr->length + 1];
-    BUF_strlcpy(data, bptr->data, bptr->length + 1);
-    char *trimmed_data = trim(data, bptr->length);
+    char *trimmed_data;
+    if (bptr->data == NULL) {
+      trimmed_data = "";
+    } else {
+      BUF_strlcpy(data, bptr->data, bptr->length + 1);
+      trimmed_data = trim(data, bptr->length);
+    }
 
     BIO_free(ext_bio);
 
