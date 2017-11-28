@@ -58,68 +58,53 @@ NAN_METHOD(verify) {
   X509_STORE *store = NULL;
   X509_STORE_CTX *verify_ctx = NULL;
   X509 *cert = NULL;
-  BIO *cert_bio = BIO_new(BIO_s_file());
+  BIO *cert_bio = NULL;
+  const char *error = NULL;
 
-  // create store
-  store = X509_STORE_new();
-  if (store == NULL) {
-    X509_STORE_free(store);
-    BIO_free_all(cert_bio);
-    Nan::ThrowError("Failed to create X509 certificate store.");
-  }
-
-  verify_ctx = X509_STORE_CTX_new();
-
-  if (verify_ctx == NULL) {
-    X509_STORE_free(store);
-    BIO_free_all(cert_bio);
-    Nan::ThrowError("Failed to create X509 verification context.");
-  }
-
-  // load file in BIO
-  int ret = BIO_read_filename(cert_bio, cert_path.c_str());
-  if (ret != 1) {
-    X509_STORE_free(store);
-    X509_free(cert);
-    BIO_free_all(cert_bio);
-    X509_STORE_CTX_free(verify_ctx);
-    Nan::ThrowError("Error reading file");
-  }
-
-  // read from BIO
-  cert = PEM_read_bio_X509(cert_bio, NULL, 0, NULL);
-  if (cert == NULL) {
-    X509_STORE_free(store);
-    X509_free(cert);
-    X509_STORE_CTX_free(verify_ctx);
-    BIO_free_all(cert_bio);
-    Nan::ThrowError("Failed to load cert");
-  }
-
-  // load CA bundle
-  ret = X509_STORE_load_locations(store, ca_bundlestr.c_str(), NULL);
-  if (ret != 1) {
-    X509_STORE_free(store);
-    X509_free(cert);
-    BIO_free_all(cert_bio);
-    X509_STORE_CTX_free(verify_ctx);
-    Nan::ThrowError("Error loading CA chain file");
-  }
-
-  // verify
-  X509_STORE_CTX_init(verify_ctx, store, cert, NULL);
-  ret = X509_verify_cert(verify_ctx);
-
-  if (ret <= 0) {
-    Nan::ThrowError(X509_verify_cert_error_string(verify_ctx->error));
-  }
-
+  do {
+    store = X509_STORE_new();
+    if (store == NULL) {
+      error = "Failed to create X509 certificate store.";
+      break;
+    }
+    verify_ctx = X509_STORE_CTX_new();
+    if (verify_ctx == NULL) {
+      error = "Failed to create X509 verification context.";
+      break;
+    }
+    cert_bio = BIO_new(BIO_s_file());
+    int ret = BIO_read_filename(cert_bio, cert_path.c_str());
+    if (ret != 1) {
+      error = "Error reading file";
+      break;
+    }
+    cert = PEM_read_bio_X509(cert_bio, NULL, 0, NULL);
+    if (cert == NULL) {
+      error = "Failed to load cert";
+      break;
+    }
+    ret = X509_STORE_load_locations(store, ca_bundlestr.c_str(), NULL);
+    if (ret != 1) {
+      error = "Error loading CA chain file";
+      break;
+    }
+    X509_STORE_CTX_init(verify_ctx, store, cert, NULL);
+    ret = X509_verify_cert(verify_ctx);
+    if (ret <= 0) {
+      error =  X509_verify_cert_error_string(verify_ctx->error);
+      break;
+    }
+  } while(0);
+  
   X509_STORE_free(store);
   X509_free(cert);
   X509_STORE_CTX_free(verify_ctx);
   BIO_free_all(cert_bio);
-
- info.GetReturnValue().Set(Nan::New(true));
+  if (error != NULL) {
+    Nan::ThrowError(error);
+  } else {
+    info.GetReturnValue().Set(Nan::New(true));
+  }
 }
 
 
