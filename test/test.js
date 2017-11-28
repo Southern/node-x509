@@ -38,3 +38,19 @@ x509.verify(
     assert.throws(assert.ifError.bind(null, err), /ENOENT/)
   }
 );
+
+x509.verify(
+  path.join(__dirname, 'certs/equifax.crt'),
+  path.join(__dirname, '/test.js'),
+  function(err, result) {
+    assert.notStrictEqual(err, null);
+  }
+);
+
+x509.verify(
+  path.join(__dirname, '/test.js'),
+  path.join(__dirname, 'CA_chains/enduser-example.com.chain'),
+  function(err, result) {
+    assert.notStrictEqual(err, null);
+  }
+);
