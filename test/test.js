@@ -43,7 +43,7 @@ x509.verify(
   path.join(__dirname, 'certs/equifax.crt'),
   path.join(__dirname, '/test.js'),
   function(err, result) {
-    assert.notStrictEqual(err, null);
+    assert.throws(assert.ifError.bind(null, err), /Error loading CA chain file/)
   }
 );
 
@@ -51,6 +51,6 @@ x509.verify(
   path.join(__dirname, '/test.js'),
   path.join(__dirname, 'CA_chains/enduser-example.com.chain'),
   function(err, result) {
-    assert.notStrictEqual(err, null);
+    assert.throws(assert.ifError.bind(null, err), /Failed to load cert/)
   }
 );
