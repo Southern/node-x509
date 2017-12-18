@@ -1,0 +1,84 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 4 (0x4)
+    Signature Algorithm: sha1WithRSAEncryption
+        Issuer: C=CN, ST=Hangzhou, L=Hangzhou, O=Rokid, OU=homebase, CN=Rokid
+        Validity
+            Not Before: Dec 13 13:57:27 2017 GMT
+            Not After : Dec 13 13:57:27 2018 GMT
+        Subject: C=CN, ST=sss, O=zzz, OU=ddd, CN=ttt
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (2048 bit)
+                Modulus:
+                    00:a1:91:5e:39:ce:04:73:3c:db:5e:67:f8:c5:a8:
+                    e0:63:e0:df:ab:21:54:0d:89:d7:63:04:68:ae:1a:
+                    f5:1c:46:20:77:a3:41:9c:aa:a3:6d:58:dd:07:43:
+                    c6:3f:81:cc:24:c2:85:59:10:99:c6:bb:a9:34:6d:
+                    70:c6:cf:63:57:5d:65:b8:42:ec:05:51:52:7a:b0:
+                    5f:d6:09:60:9f:ae:47:28:af:97:94:76:b7:4b:77:
+                    97:31:ec:eb:d2:a9:08:4f:0b:b0:54:6a:bd:40:9d:
+                    cb:13:05:2d:2f:b2:51:3e:ff:42:54:89:53:92:96:
+                    e8:3a:7d:d6:8d:42:55:72:e3:5f:51:e2:ee:64:0c:
+                    76:c0:38:e8:5c:86:09:ef:d5:57:92:2f:e8:fd:f4:
+                    84:b9:57:41:7a:4c:0c:23:c9:9e:10:17:a3:70:d8:
+                    43:1c:39:18:9b:92:4a:e4:01:1c:f4:0c:3d:a6:7a:
+                    bf:02:93:ab:57:3d:16:a5:f9:21:fd:e2:15:d5:ab:
+                    de:46:cf:bf:ad:32:de:96:01:3a:fc:f5:50:9b:cb:
+                    51:c3:97:c4:13:73:59:61:da:6d:1e:06:9a:c8:11:
+                    14:c2:52:78:59:65:fe:0f:c1:fe:66:5e:47:47:04:
+                    ca:57:7b:7d:b0:0d:1c:91:44:fb:29:ae:8a:ea:27:
+                    3a:31
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            Netscape Comment: 
+                OpenSSL Generated Certificate
+            X509v3 Subject Key Identifier: 
+                21:28:5D:C7:BB:E1:30:B8:BD:0C:84:F8:98:49:CF:3F:6D:B1:48:4D
+            X509v3 Authority Key Identifier: 
+                DirName:/C=CN/ST=Hangzhou/L=Hangzhou/O=Rokid/OU=homebase/CN=Rokid
+                serial:94:4E:2C:AE:6B:DA:31:6B
+
+    Signature Algorithm: sha1WithRSAEncryption
+         13:83:55:67:e4:b3:4c:7e:91:92:79:e5:5a:c8:b3:d3:b6:05:
+         c4:74:ff:6b:82:b8:2b:51:40:d1:b7:6d:2f:0d:f0:c5:65:44:
+         05:8f:eb:31:ce:a0:64:6e:02:fe:25:75:ce:24:6d:8d:93:9d:
+         d2:fb:f9:89:d5:e7:09:fd:09:de:cf:91:c8:ab:0b:ad:ad:12:
+         be:55:8d:83:ce:8c:77:f1:40:f1:b8:cc:ae:74:90:18:8b:f3:
+         42:51:ab:47:21:52:8a:3d:d8:de:3a:b9:2b:6e:0d:9e:33:c7:
+         9c:52:33:15:8b:99:38:d6:d5:27:d8:b4:03:28:d6:de:dc:2b:
+         19:73:61:fa:8e:3a:43:83:c8:3b:79:0b:23:2a:ed:2f:d1:eb:
+         22:5b:00:ac:00:6a:89:04:dc:79:fa:29:42:53:af:b0:9e:fe:
+         15:2a:31:06:35:ef:38:88:71:50:c8:6e:20:57:dd:a1:bf:93:
+         94:49:26:9b:1a:f3:4b:79:75:53:e0:1c:87:a9:2c:cc:78:61:
+         cb:ee:56:55:1d:08:9a:36:fd:8e:33:a9:f0:a3:f3:c4:85:de:
+         a8:94:a1:cd:ee:38:99:84:f8:8e:a8:b2:19:c9:b3:f9:5e:3e:
+         24:03:ab:c8:9b:6f:f0:1d:9f:55:47:12:4f:18:53:ed:01:07:
+         8f:0c:01:90
+-----BEGIN CERTIFICATE-----
+MIIEBTCCAu2gAwIBAgIBBDANBgkqhkiG9w0BAQUFADBmMQswCQYDVQQGEwJDTjER
+MA8GA1UECAwISGFuZ3pob3UxETAPBgNVBAcMCEhhbmd6aG91MQ4wDAYDVQQKDAVS
+b2tpZDERMA8GA1UECwwIaG9tZWJhc2UxDjAMBgNVBAMMBVJva2lkMB4XDTE3MTIx
+MzEzNTcyN1oXDTE4MTIxMzEzNTcyN1owRTELMAkGA1UEBhMCQ04xDDAKBgNVBAgM
+A3NzczEMMAoGA1UECgwDenp6MQwwCgYDVQQLDANkZGQxDDAKBgNVBAMMA3R0dDCC
+ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKGRXjnOBHM8215n+MWo4GPg
+36shVA2J12MEaK4a9RxGIHejQZyqo21Y3QdDxj+BzCTChVkQmca7qTRtcMbPY1dd
+ZbhC7AVRUnqwX9YJYJ+uRyivl5R2t0t3lzHs69KpCE8LsFRqvUCdyxMFLS+yUT7/
+QlSJU5KW6Dp91o1CVXLjX1Hi7mQMdsA46FyGCe/VV5Iv6P30hLlXQXpMDCPJnhAX
+o3DYQxw5GJuSSuQBHPQMPaZ6vwKTq1c9FqX5If3iFdWr3kbPv60y3pYBOvz1UJvL
+UcOXxBNzWWHabR4GmsgRFMJSeFll/g/B/mZeR0cEyld7fbANHJFE+ymuiuonOjEC
+AwEAAaOB3jCB2zAJBgNVHRMEAjAAMCwGCWCGSAGG+EIBDQQfFh1PcGVuU1NMIEdl
+bmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNVHQ4EFgQUIShdx7vhMLi9DIT4mEnPP22x
+SE0wgYAGA1UdIwR5MHehaqRoMGYxCzAJBgNVBAYTAkNOMREwDwYDVQQIDAhIYW5n
+emhvdTERMA8GA1UEBwwISGFuZ3pob3UxDjAMBgNVBAoMBVJva2lkMREwDwYDVQQL
+DAhob21lYmFzZTEOMAwGA1UEAwwFUm9raWSCCQCUTiyua9oxazANBgkqhkiG9w0B
+AQUFAAOCAQEAE4NVZ+SzTH6RknnlWsiz07YFxHT/a4K4K1FA0bdtLw3wxWVEBY/r
+Mc6gZG4C/iV1ziRtjZOd0vv5idXnCf0J3s+RyKsLra0SvlWNg86Md/FA8bjMrnSQ
+GIvzQlGrRyFSij3Y3jq5K24NnjPHnFIzFYuZONbVJ9i0AyjW3twrGXNh+o46Q4PI
+O3kLIyrtL9HrIlsArABqiQTcefopQlOvsJ7+FSoxBjXvOIhxUMhuIFfdob+TlEkm
+mxrzS3l1U+Ach6kszHhhy+5WVR0Imjb9jjOp8KPzxIXeqJShze44mYT4jqiyGcmz
++V4+JAOryJtv8B2fVUcSTxhT7QEHjwwBkA==
+-----END CERTIFICATE-----

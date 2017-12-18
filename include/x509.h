@@ -24,9 +24,11 @@ NAN_METHOD(get_subject);
 NAN_METHOD(get_issuer);
 NAN_METHOD(parse_cert);
 NAN_METHOD(verify);
+NAN_METHOD(verifyFromStr);
 
 Local<Value> try_parse(const std::string& dataString);
 Local<Value> verify(const std::string& dataString);
+Local<Value> verifyFromStr(const std::string& dataString);
 Local<Value> parse_date(ASN1_TIME *date);
 Local<Value> parse_serial(ASN1_INTEGER *serial);
 Local<Object> parse_name(X509_NAME *subject);

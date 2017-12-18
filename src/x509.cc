@@ -46,7 +46,72 @@ std::string parse_args(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   return *String::Utf8Value(info[0]->ToString());
 }
 
-
+NAN_METHOD(verifyFromStr) {
+  Nan::HandleScope scope;
+  OpenSSL_add_all_algorithms();
+  std::string cert_str = *String::Utf8Value(info[0]->ToString());
+  std::string ca_str = *String::Utf8Value(info[1]->ToString());
+  
+  X509_STORE *store = NULL;
+  X509_STORE_CTX *verify_ctx = NULL;
+  X509 *ca_cert = NULL;
+  BIO *ca_bio = NULL;
+  X509 *cert = NULL;
+  BIO *cert_bio = NULL;
+  const char *error = NULL;
+  do {
+    store = X509_STORE_new();
+    if (store == NULL) {
+      error = "Failed to create X509 certificate store.";
+      break;
+    }
+    verify_ctx = X509_STORE_CTX_new();
+    if (verify_ctx == NULL) {
+      error = "Failed to create X509 verification context.";
+      break;
+    }
+    cert_bio = BIO_new(BIO_s_mem());
+    size_t ret = BIO_puts(cert_bio, cert_str.c_str());
+    if (ret != cert_str.length()) {
+      error = "Error reading cert content";
+      break;
+    }
+    cert = PEM_read_bio_X509(cert_bio, NULL, 0, NULL);
+    if (cert == NULL) {
+      error = "Failed to load cert";
+      break;
+    }
+    ca_bio = BIO_new(BIO_s_mem());
+    ret = BIO_puts(ca_bio, ca_str.c_str());
+    if (ret != ca_str.length()) {
+      error = "Error reading ca content";
+      break;
+    }
+    ca_cert = PEM_read_bio_X509(ca_bio, NULL, 0, NULL);
+    if (ca_cert == NULL) {
+      error = "Failed to load ca";
+      break;
+    }
+    X509_STORE_CTX_init(verify_ctx, store, ca_cert, NULL);
+    X509_STORE_add_cert(store, cert);
+    ret = X509_verify_cert(verify_ctx);
+    if (ret < 1) {
+      error =  X509_verify_cert_error_string(verify_ctx->error);
+      break;
+    }
+  } while(0);
+  X509_STORE_free(store);
+  X509_STORE_CTX_free(verify_ctx);
+  X509_free(ca_cert);
+  BIO_free_all(ca_bio);
+  X509_free(cert);
+  BIO_free_all(cert_bio);
+  if (error != NULL) {
+    Nan::ThrowError(error);
+  } else {
+    info.GetReturnValue().Set(Nan::New(true));
+  }
+}
 
 NAN_METHOD(verify) {
   Nan::HandleScope scope;

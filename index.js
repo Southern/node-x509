@@ -6,6 +6,19 @@ exports.getAltNames = x509.getAltNames;
 exports.getSubject = x509.getSubject;
 exports.getIssuer = x509.getIssuer;
 
+exports.verifyFromStr = function(certStr, CABundleStr, cb) {
+  let caughtErr = null;
+  try {
+    x509.verifyFromStr(certStr, CABundleStr);
+  }
+  catch (verificationError) {
+    caughtErr = verificationError;
+  }
+  finally {
+    cb(caughtErr);
+  }
+};
+
 exports.verify = function(certPath, CABundlePath, cb) {
   if (!certPath) {
     throw new TypeError('Certificate path is required');

@@ -10,6 +10,10 @@ void init(Local<Object> exports) {
   Nan::Set(exports,
     Nan::New<String>("version").ToLocalChecked(),
     Nan::New<String>(VERSION).ToLocalChecked());
+  
+  Nan::Set(exports,
+    Nan::New<String>("verifyFromStr").ToLocalChecked(),
+    Nan::New<FunctionTemplate>(verifyFromStr)->GetFunction());
 
   Nan::Set(exports,
     Nan::New<String>("verify").ToLocalChecked(),
