@@ -137,6 +137,21 @@ x509.verify(
 
 ```
 
+#### x509.verifyFromStr(`certStr`, `caStr`, function(err, result){ /*...*/})
+
+It is the same with verify.
+
+```js
+const x509 = require('x509');
+
+x509.verify(
+  path.readFileSync(__dirname + '/certs/user.com.crt'),
+  path.readFileSync(__dirname + 'enduser-example.com.chain'),
+  function(err, result){ /*...*/}
+);
+
+```
+
 ## Examples
 Checking the date to make sure the certificate is active:
 ```js
