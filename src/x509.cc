@@ -43,7 +43,7 @@ std::string parse_args(const Nan::FunctionCallbackInfo<v8::Value>& info) {
     return std::string();
   }
 
-  return *String::Utf8Value(info[0]->ToString());
+  return *String::Utf8Value(info.GetIsolate(), info[0]->ToString());
 }
 
 
@@ -52,8 +52,8 @@ NAN_METHOD(verify) {
   Nan::HandleScope scope;
   OpenSSL_add_all_algorithms();
 
-  std::string cert_path = *String::Utf8Value(info[0]->ToString());
-  std::string ca_bundlestr = *String::Utf8Value(info[1]->ToString());
+  std::string cert_path = *String::Utf8Value(info.GetIsolate(), info[0]->ToString());
+  std::string ca_bundlestr = *String::Utf8Value(info.GetIsolate(), info[1]->ToString());
 
   X509_STORE *store = NULL;
   X509_STORE_CTX *verify_ctx = NULL;
