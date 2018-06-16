@@ -13,6 +13,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "nan": "2.2.0"
+    "nan": "2.10.0"
   }
 }
