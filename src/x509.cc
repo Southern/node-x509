@@ -253,7 +253,7 @@ Local<Value> try_parse(const std::string &dataString)
            Nan::New<String>(stream.str()).ToLocalChecked());
 
   // Signature Algorithm
-  int sig_alg_nid = X509_get_signature_nid(cert); //OBJ_obj2nid(cert->sig_alg->algorithm);
+  int sig_alg_nid = X509_get_signature_nid(cert);
   if (sig_alg_nid == NID_undef)
   {
     ERR_clear_error();
@@ -293,7 +293,7 @@ Local<Value> try_parse(const std::string &dataString)
              Nan::New<String>(fingerprint).ToLocalChecked());
   }
   // public key
-  int pkey_nid = X509_get_signature_nid(cert); //OBJ_obj2nid(cert->cert_info->key->algor->algorithm);
+  int pkey_nid = X509_get_signature_nid(cert);
   if (pkey_nid == NID_undef)
   {
     ERR_clear_error();
@@ -371,7 +371,7 @@ Local<Value> try_parse(const std::string &dataString)
 
   // Extensions
   Local<Object> extensions(Nan::New<Object>());
-  const STACK_OF(X509_EXTENSION) *exts = X509_get0_extensions(cert); //->cert_info->extensions;
+  const STACK_OF(X509_EXTENSION) *exts = X509_get0_extensions(cert);
 
   int num_of_exts = X509v3_get_ext_count(exts);
   int index_of_exts;
@@ -389,22 +389,28 @@ Local<Value> try_parse(const std::string &dataString)
     // IFNULL_FAIL(ext_bio, "unable to allocate memory for extension value BIO");
     if (!X509V3_EXT_print(ext_bio, ext, 0, 0))
     {
-      unsigned char **buf = NULL;
-      int len = i2d_ASN1_OCTET_STRING(X509_EXTENSION_get_data(ext), buf);
-
+      unsigned char *buf = NULL;
+      int len = i2d_ASN1_OCTET_STRING(X509_EXTENSION_get_data(ext), &buf);
       if (len >= 0)
       {
-        BIO_write(ext_bio, *buf, len);
+        BIO_write(ext_bio, static_cast<const void *>(buf), len);
       }
     }
 
     BUF_MEM *bptr;
     BIO_get_mem_ptr(ext_bio, &bptr);
-    BIO_set_close(ext_bio, BIO_CLOSE);
 
     char *data = new char[bptr->length + 1];
-    BUF_strlcpy(data, bptr->data, bptr->length + 1);
-    char *trimmed_data = trim(data, bptr->length);
+    char *trimmed_data;
+    if (bptr->data == NULL)
+    {
+      trimmed_data = (char *)"";
+    }
+    else
+    {
+      BUF_strlcpy(data, bptr->data, bptr->length + 1);
+      trimmed_data = trim(data, bptr->length);
+    }
     BIO_free(ext_bio);
 
     unsigned nid = OBJ_obj2nid(obj);
@@ -455,7 +461,6 @@ Local<Value> parse_serial(ASN1_INTEGER *serial)
 Local<Value> parse_date(ASN1_TIME *date)
 {
   Nan::EscapableHandleScope scope;
-  // scope->BIO *bio;
   BUF_MEM *bm;
   char formatted[64];
   Local<Value> args[1];
