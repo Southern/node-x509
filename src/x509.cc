@@ -164,6 +164,7 @@ NAN_METHOD(parse_cert)
   {
     info.GetReturnValue().SetUndefined();
   }
+
   Local<Object> exports(try_parse(parsed_arg)->ToObject());
   info.GetReturnValue().Set(exports);
   ERR_clear_error();
@@ -244,7 +245,6 @@ Local<Value> try_parse(const std::string &dataString)
   Nan::Set(exports,
            Nan::New<String>("notAfter").ToLocalChecked(),
            parse_date(X509_get_notAfter(cert)));
-
   // Subject hash
   std::stringstream stream;
   stream << std::hex << X509_subject_name_hash(cert);
@@ -292,7 +292,6 @@ Local<Value> try_parse(const std::string &dataString)
              Nan::New<String>("fingerPrint").ToLocalChecked(),
              Nan::New<String>(fingerprint).ToLocalChecked());
   }
-
   // public key
   int pkey_nid = X509_get_signature_nid(cert); //OBJ_obj2nid(cert->cert_info->key->algor->algorithm);
   if (pkey_nid == NID_undef)
@@ -374,24 +373,18 @@ Local<Value> try_parse(const std::string &dataString)
   Local<Object> extensions(Nan::New<Object>());
   const STACK_OF(X509_EXTENSION) *exts = X509_get0_extensions(cert); //->cert_info->extensions;
 
-  int num_of_exts;
+  int num_of_exts = X509v3_get_ext_count(exts);
   int index_of_exts;
-  if (exts)
-  {
-    num_of_exts = sk_X509_EXTENSION_num(exts);
-  }
-  else
-  {
-    num_of_exts = 0;
-  }
+
+  std::cout << num_of_exts;
 
   // IFNEG_FAIL(num_of_exts, "error parsing number of X509v3 extensions.");
 
   for (index_of_exts = 0; index_of_exts < num_of_exts; index_of_exts++)
   {
-    X509_EXTENSION *ext = sk_X509_EXTENSION_value(exts, index_of_exts);
-    // IFNULL_FAIL(ext, "unable to extract extension from stack");
+    X509_EXTENSION *ext = X509v3_get_ext(exts, index_of_exts);
     ASN1_OBJECT *obj = X509_EXTENSION_get_object(ext);
+
     // IFNULL_FAIL(obj, "unable to extract ASN1 object from extension");
 
     BIO *ext_bio = BIO_new(BIO_s_mem());
@@ -400,6 +393,8 @@ Local<Value> try_parse(const std::string &dataString)
     {
       unsigned char **buf = NULL;
       int len = i2d_ASN1_OCTET_STRING(X509_EXTENSION_get_data(ext), buf);
+      std::cout << len  << &(*buf);
+
       if (len >= 0)
       {
         BIO_write(ext_bio, *buf, len);
@@ -413,10 +408,10 @@ Local<Value> try_parse(const std::string &dataString)
     char *data = new char[bptr->length + 1];
     BUF_strlcpy(data, bptr->data, bptr->length + 1);
     char *trimmed_data = trim(data, bptr->length);
-
     BIO_free(ext_bio);
 
     unsigned nid = OBJ_obj2nid(obj);
+
     if (nid == NID_undef)
     {
       char extname[100];
@@ -433,8 +428,10 @@ Local<Value> try_parse(const std::string &dataString)
                Nan::New<String>(real_name((char *)c_ext_name)).ToLocalChecked(),
                Nan::New<String>(trimmed_data).ToLocalChecked());
     }
+
     delete[] data;
   }
+
   Nan::Set(exports,
            Nan::New<String>("extensions").ToLocalChecked(), extensions);
 
