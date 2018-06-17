@@ -376,8 +376,6 @@ Local<Value> try_parse(const std::string &dataString)
   int num_of_exts = X509v3_get_ext_count(exts);
   int index_of_exts;
 
-  std::cout << num_of_exts;
-
   // IFNEG_FAIL(num_of_exts, "error parsing number of X509v3 extensions.");
 
   for (index_of_exts = 0; index_of_exts < num_of_exts; index_of_exts++)
@@ -393,7 +391,6 @@ Local<Value> try_parse(const std::string &dataString)
     {
       unsigned char **buf = NULL;
       int len = i2d_ASN1_OCTET_STRING(X509_EXTENSION_get_data(ext), buf);
-      std::cout << len  << &(*buf);
 
       if (len >= 0)
       {
