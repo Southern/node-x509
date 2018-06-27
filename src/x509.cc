@@ -46,7 +46,7 @@ std::string parse_args(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   return *String::Utf8Value(info[0]->ToString());
 }
 
-NAN_METHOD(verifyFromStr) {
+NAN_METHOD(verify_from_str) {
   Nan::HandleScope scope;
   OpenSSL_add_all_algorithms();
   std::string cert_str = *String::Utf8Value(info[0]->ToString());

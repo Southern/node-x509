@@ -12,8 +12,8 @@ void init(Local<Object> exports) {
     Nan::New<String>(VERSION).ToLocalChecked());
   
   Nan::Set(exports,
-    Nan::New<String>("verifyFromStr").ToLocalChecked(),
-    Nan::New<FunctionTemplate>(verifyFromStr)->GetFunction());
+    Nan::New<String>("verify_from_str").ToLocalChecked(),
+    Nan::New<FunctionTemplate>(verify_from_str)->GetFunction());
 
   Nan::Set(exports,
     Nan::New<String>("verify").ToLocalChecked(),

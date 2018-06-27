@@ -7,14 +7,27 @@ exports.getSubject = x509.getSubject;
 exports.getIssuer = x509.getIssuer;
 
 exports.verifyFromStr = function(certStr, CABundleStr, cb) {
+  if (typeof cb !== 'function') {
+    throw new Error('cb should be function')
+  }
+  if (certStr instanceof Buffer) {
+    certStr = certStr.toString()
+  } else if (typeof certStr !== 'string') {
+    cb(new Error('certStr should be string or buffer'))
+    return
+  }
+  if (CABundleStr instanceof Buffer) {
+    CABundleStr = CABundleStr.toString()
+  } else if (typeof CABundleStr !== 'string') {
+    cb(new Error('CABundleStr should be string or buffer'))
+    return
+  }
   var caughtErr = null;
   try {
-    x509.verifyFromStr(certStr, CABundleStr);
-  }
-  catch (verificationError) {
+    x509.verify_from_str(certStr, CABundleStr);
+  } catch (verificationError) {
     caughtErr = verificationError;
-  }
-  finally {
+  } finally {
     cb(caughtErr);
   }
 };
@@ -42,8 +55,7 @@ exports.verify = function(certPath, CABundlePath, cb) {
       try {
         x509.verify(certPath, CABundlePath);
         cb(null);
-      }
-      catch (verificationError) {
+      } catch (verificationError) {
         cb(verificationError);
       }
     });

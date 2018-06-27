@@ -137,7 +137,7 @@ x509.verify(
 
 ```
 
-#### x509.verifyFromStr(`certStr`, `caStr`, function(err, result){ /*...*/})
+#### x509.verifyFromStr(`certStr`, `CABundleStr`, function(err, result){ /*...*/})
 
 It is the same with verify.
 

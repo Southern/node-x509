@@ -86,3 +86,20 @@ x509.verifyFromStr(
     assert.throws(assert.ifError.bind(null, err), /Failed to load ca/)
   }
 );
+
+x509.verifyFromStr(
+  123456,
+  fs.readFileSync(path.join(__dirname, 'CA_chains/enduser-example.com.chain')),
+  function(err, result) {
+    assert.throws(assert.ifError.bind(null, err), /certStr should be string or buffer/)
+  }
+)
+
+try {
+  x509.verifyFromStr(
+    fs.readFileSync(path.join(__dirname, 'certs/acaline.com.crt')),
+    fs.readFileSync(path.join(__dirname, 'CA_chains/enduser-example.com.chain'))
+  )
+} catch (err) {
+  assert.throws(assert.ifError.bind(null, err), /cb should be function/)
+}
