@@ -253,7 +253,11 @@ Local<Value> try_parse(const std::string &dataString)
            Nan::New<String>(stream.str()).ToLocalChecked());
 
   // Signature Algorithm
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
   int sig_alg_nid = X509_get_signature_nid(cert);
+#else
+  int sig_alg_nid = OBJ_obj2nid(cert->sig_alg->algorithm);
+#endif
   if (sig_alg_nid == NID_undef)
   {
     ERR_clear_error();
