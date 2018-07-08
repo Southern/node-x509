@@ -331,6 +331,7 @@ Local<Value> try_parse(const std::string &dataString)
 #else
     rsa_key = pkey->pkey.rsa;
     rsa_e_dec = BN_bn2dec(rsa_key->e);
+    rsa_n_hex = BN_bn2hex(rsa_key->n);
 #endif
     rsa_key_length_int = RSA_size(rsa_key) * 8;
     Nan::Set(publicKey,
