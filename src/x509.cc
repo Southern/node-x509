@@ -313,12 +313,17 @@ Local<Value> try_parse(const std::string &dataString)
     char *rsa_e_dec, *rsa_n_hex;
     uint32_t rsa_key_length_int;
     RSA *rsa_key;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
     rsa_key = EVP_PKEY_get1_RSA(pkey);
     const BIGNUM *n;
     const BIGNUM *e;
     RSA_get0_key(rsa_key, &n, &e, NULL);
     rsa_e_dec = BN_bn2dec(e);
     rsa_n_hex = BN_bn2hex(n);
+#else
+    rsa_key = pkey->pkey.rsa;
+    rsa_e_dec = BN_bn2dec(rsa_key->e);
+#endif
     rsa_key_length_int = RSA_size(rsa_key) * 8;
     Nan::Set(publicKey,
              Nan::New<String>("e").ToLocalChecked(),
@@ -351,8 +356,13 @@ Local<Value> try_parse(const std::string &dataString)
 
       if (current->type == GEN_DNS)
       {
+        char *name = NULL;
 
-        char *name = (char *)ASN1_STRING_get0_data(current->d.dNSName);
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+        name = (char *)ASN1_STRING_get0_data(current->d.dNSName);
+#else
+        name = (char *)ASN1_STRING_data(current->d.dNSName);
+#endif
 
         if (ASN1_STRING_length(current->d.dNSName) != (int)strlen(name))
         {
@@ -371,7 +381,11 @@ Local<Value> try_parse(const std::string &dataString)
 
   // Extensions
   Local<Object> extensions(Nan::New<Object>());
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
   const STACK_OF(X509_EXTENSION) *exts = X509_get0_extensions(cert);
+#else
+  STACK_OF(X509_EXTENSION) *exts = cert->cert_info->extensions;
+#endif
 
   int num_of_exts = X509v3_get_ext_count(exts);
   int index_of_exts;
@@ -492,7 +506,12 @@ Local<Object> parse_name(X509_NAME *subject)
   {
     entry = X509_NAME_ENTRY_get_object(X509_NAME_get_entry(subject, i));
     OBJ_obj2txt(buf, 255, entry, 0);
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
     value = ASN1_STRING_get0_data(X509_NAME_ENTRY_get_data(X509_NAME_get_entry(subject, i)));
+#else
+    value = ASN1_STRING_data(X509_NAME_ENTRY_get_data(X509_NAME_get_entry(subject, i)));
+#endif
+
     Nan::Set(cert,
              Nan::New<String>(real_name(buf)).ToLocalChecked(),
              Nan::New<String>((const char *)value).ToLocalChecked());
