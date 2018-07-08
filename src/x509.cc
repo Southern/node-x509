@@ -297,7 +297,11 @@ Local<Value> try_parse(const std::string &dataString)
              Nan::New<String>(fingerprint).ToLocalChecked());
   }
   // public key
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
   int pkey_nid = X509_get_signature_nid(cert);
+#else
+  int pkey_nid = X509_get_signature_nid(cert->cert_info->key->algor->algorithm);
+#endif
   if (pkey_nid == NID_undef)
   {
     ERR_clear_error();
