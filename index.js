@@ -8,19 +8,19 @@ exports.getIssuer = x509.getIssuer;
 
 exports.verifyFromStr = function(certStr, CABundleStr, cb) {
   if (typeof cb !== 'function') {
-    throw new Error('cb should be function')
+    throw new Error('cb should be function');
   }
   if (certStr instanceof Buffer) {
-    certStr = certStr.toString()
+    certStr = certStr.toString();
   } else if (typeof certStr !== 'string') {
-    cb(new Error('certStr should be string or buffer'))
-    return
+    cb(new Error('certStr should be string or buffer'));
+    return;
   }
   if (CABundleStr instanceof Buffer) {
-    CABundleStr = CABundleStr.toString()
+    CABundleStr = CABundleStr.toString();
   } else if (typeof CABundleStr !== 'string') {
-    cb(new Error('CABundleStr should be string or buffer'))
-    return
+    cb(new Error('CABundleStr should be string or buffer'));
+    return;
   }
   var caughtErr = null;
   try {
