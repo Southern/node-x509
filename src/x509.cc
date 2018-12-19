@@ -1,6 +1,7 @@
+#include <x509.h>
 #include <cstring>
 #include <sstream>
-#include <x509.h>
+
 
 using namespace v8;
 
@@ -386,11 +387,7 @@ Local<Value> try_parse(const std::string& dataString) {
     BIO *ext_bio = BIO_new(BIO_s_mem());
     // IFNULL_FAIL(ext_bio, "unable to allocate memory for extension value BIO");
     if (!X509V3_EXT_print(ext_bio, ext, 0, 0)) {
-      unsigned char *buf = NULL;
-      int len = i2d_ASN1_OCTET_STRING(X509_EXTENSION_get_data(ext), &buf);
-      if (len >= 0) {
-          BIO_write(ext_bio, static_cast<const void *>(buf), len);
-      }
+        ASN1_STRING_print(ext_bio, X509_EXTENSION_get_data(ext));
     }
 
     BUF_MEM *bptr;
