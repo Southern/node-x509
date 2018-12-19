@@ -43,7 +43,7 @@ std::string parse_args(const Nan::FunctionCallbackInfo<v8::Value>& info) {
     return std::string();
   }
 
-  return *String::Utf8Value(info[0]->ToString());
+  return *Nan::Utf8String(info[0]->ToString());
 }
 
 
@@ -91,7 +91,7 @@ NAN_METHOD(verify) {
     X509_STORE_CTX_init(verify_ctx, store, cert, NULL);
     ret = X509_verify_cert(verify_ctx);
     if (ret <= 0) {
-      error =  X509_verify_cert_error_string(verify_ctx->error);
+      error =  X509_verify_cert_error_string(X509_STORE_CTX_get_error(verify_ctx));
       break;
     }
   } while(0);
@@ -237,7 +237,11 @@ Local<Value> try_parse(const std::string& dataString) {
       Nan::New<String>(stream.str()).ToLocalChecked());
 
   // Signature Algorithm
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+  int sig_alg_nid = X509_get_signature_nid(cert);
+#else
   int sig_alg_nid = OBJ_obj2nid(cert->sig_alg->algorithm);
+#endif
   if (sig_alg_nid == NID_undef) {
     ERR_clear_error();
     Nan::ThrowError("unable to find specified signature algorithm name.");
@@ -272,7 +276,11 @@ Local<Value> try_parse(const std::string& dataString) {
   }
 
   // public key
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+  int pkey_nid = X509_get_signature_nid(cert);
+#else
   int pkey_nid = OBJ_obj2nid(cert->cert_info->key->algor->algorithm);
+#endif
   if (pkey_nid == NID_undef) {
     ERR_clear_error();
     Nan::ThrowError("unable to find specified public key algorithm name.");
@@ -290,9 +298,18 @@ Local<Value> try_parse(const std::string& dataString) {
     char *rsa_e_dec, *rsa_n_hex;
     uint32_t rsa_key_length_int;
     RSA *rsa_key;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    rsa_key = EVP_PKEY_get1_RSA(pkey);
+    const BIGNUM *n;
+    const BIGNUM *e;
+    RSA_get0_key(rsa_key, &n, &e, NULL);
+    rsa_e_dec = BN_bn2dec(e);
+    rsa_n_hex = BN_bn2hex(n);
+#else
     rsa_key = pkey->pkey.rsa;
     rsa_e_dec = BN_bn2dec(rsa_key->e);
     rsa_n_hex = BN_bn2hex(rsa_key->n);
+#endif
     rsa_key_length_int = RSA_size(rsa_key) * 8;
     Nan::Set(publicKey,
       Nan::New<String>("e").ToLocalChecked(),
@@ -322,7 +339,12 @@ Local<Value> try_parse(const std::string& dataString) {
       GENERAL_NAME *current = sk_GENERAL_NAME_value(names, i);
 
       if (current->type == GEN_DNS) {
-        char *name = (char*) ASN1_STRING_data(current->d.dNSName);
+        char *name = NULL;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+        name = (char *)ASN1_STRING_get0_data(current->d.dNSName);
+#else
+        name = (char *)ASN1_STRING_data(current->d.dNSName);
+#endif
 
         if (ASN1_STRING_length(current->d.dNSName) != (int) strlen(name)) {
           ERR_clear_error();
@@ -340,7 +362,11 @@ Local<Value> try_parse(const std::string& dataString) {
 
   // Extensions
   Local<Object> extensions(Nan::New<Object>());
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+  const STACK_OF(X509_EXTENSION) *exts = X509_get0_extensions(cert);
+#else
   STACK_OF(X509_EXTENSION) *exts = cert->cert_info->extensions;
+#endif  
   int num_of_exts;
   int index_of_exts;
   if (exts) {
@@ -360,7 +386,11 @@ Local<Value> try_parse(const std::string& dataString) {
     BIO *ext_bio = BIO_new(BIO_s_mem());
     // IFNULL_FAIL(ext_bio, "unable to allocate memory for extension value BIO");
     if (!X509V3_EXT_print(ext_bio, ext, 0, 0)) {
-      M_ASN1_OCTET_STRING_print(ext_bio, ext->value);
+      unsigned char *buf = NULL;
+      int len = i2d_ASN1_OCTET_STRING(X509_EXTENSION_get_data(ext), &buf);
+      if (len >= 0) {
+          BIO_write(ext_bio, static_cast<const void *>(buf), len);
+      }
     }
 
     BUF_MEM *bptr;
@@ -430,7 +460,7 @@ Local<Value> parse_date(ASN1_TIME *date) {
   Local<Object> global = Nan::GetCurrentContext()->Global();
   Local<Object> DateObject = Nan::Get(global,
     Nan::New<String>("Date").ToLocalChecked()).ToLocalChecked()->ToObject();
-  return scope.Escape(DateObject->CallAsConstructor(1, args));
+  return scope.Escape(Nan::CallAsConstructor(DateObject, 1, args).ToLocalChecked());
 }
 
 Local<Object> parse_name(X509_NAME *subject) {
@@ -438,13 +468,19 @@ Local<Object> parse_name(X509_NAME *subject) {
   Local<Object> cert = Nan::New<Object>();
   int i, length;
   ASN1_OBJECT *entry;
-  unsigned char *value;
+  const unsigned char *value;
   char buf[255];
   length = X509_NAME_entry_count(subject);
   for (i = 0; i < length; i++) {
     entry = X509_NAME_ENTRY_get_object(X509_NAME_get_entry(subject, i));
     OBJ_obj2txt(buf, 255, entry, 0);
-    value = ASN1_STRING_data(X509_NAME_ENTRY_get_data(X509_NAME_get_entry(subject, i)));
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    value = ASN1_STRING_get0_data(
+      X509_NAME_ENTRY_get_data(X509_NAME_get_entry(subject, i)));
+#else
+    value = ASN1_STRING_data(
+      X509_NAME_ENTRY_get_data(X509_NAME_get_entry(subject, i)));
+#endif
     Nan::Set(cert,
       Nan::New<String>(real_name(buf)).ToLocalChecked(),
       Nan::New<String>((const char*) value).ToLocalChecked());
