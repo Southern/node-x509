@@ -6,7 +6,7 @@ exports.getAltNames = x509.getAltNames;
 exports.getSubject = x509.getSubject;
 exports.getIssuer = x509.getIssuer;
 
-exports.verifyFromStr = function(certStr, CABundleStr, cb) {
+exports.verifyFromStr = function(certStr, caBundleStr, cb) {
   if (typeof cb !== 'function') {
     throw new Error('cb should be function');
   }
@@ -16,15 +16,15 @@ exports.verifyFromStr = function(certStr, CABundleStr, cb) {
     cb(new Error('certStr should be string or buffer'));
     return;
   }
-  if (CABundleStr instanceof Buffer) {
-    CABundleStr = CABundleStr.toString();
-  } else if (typeof CABundleStr !== 'string') {
-    cb(new Error('CABundleStr should be string or buffer'));
+  if (caBundleStr instanceof Buffer) {
+    caBundleStr = caBundleStr.toString();
+  } else if (typeof caBundleStr !== 'string') {
+    cb(new Error('caBundleStr should be string or buffer'));
     return;
   }
   var caughtErr = null;
   try {
-    x509.verify_from_str(certStr, CABundleStr);
+    x509.verify_from_str(certStr, caBundleStr);
   } catch (verificationError) {
     caughtErr = verificationError;
   } finally {
