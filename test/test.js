@@ -54,3 +54,52 @@ x509.verify(
     assert.throws(assert.ifError.bind(null, err), /Failed to load cert/)
   }
 );
+
+x509.verifyFromStr(
+  fs.readFileSync(path.join(__dirname, 'certs/enduser-example.com.crt')),
+  fs.readFileSync(path.join(__dirname, 'CA_chains/enduser-example.com.chain')),
+  function(err, result) {
+    assert.strictEqual(err, null)
+  }
+);
+
+x509.verifyFromStr(
+  fs.readFileSync(path.join(__dirname, 'certs/acaline.com.crt')),
+  fs.readFileSync(path.join(__dirname, 'CA_chains/enduser-example.com.chain')),
+  function(err, result) {
+    assert.throws(assert.ifError.bind(null, err), /self signed certificate/)
+  }
+);
+
+x509.verifyFromStr(
+  fs.readFileSync(path.join(__dirname, 'test.js')),
+  fs.readFileSync(path.join(__dirname, 'CA_chains/enduser-example.com.chain')),
+  function(err, result) {
+    assert.throws(assert.ifError.bind(null, err), /Failed to load cert/)
+  }
+);
+
+x509.verifyFromStr(
+  fs.readFileSync(path.join(__dirname, 'certs/acaline.com.crt')),
+  fs.readFileSync(path.join(__dirname, 'test.js')),
+  function(err, result) {
+    assert.throws(assert.ifError.bind(null, err), /Failed to load ca/)
+  }
+);
+
+x509.verifyFromStr(
+  123456,
+  fs.readFileSync(path.join(__dirname, 'CA_chains/enduser-example.com.chain')),
+  function(err, result) {
+    assert.throws(assert.ifError.bind(null, err), /certStr should be string or buffer/)
+  }
+)
+
+try {
+  x509.verifyFromStr(
+    fs.readFileSync(path.join(__dirname, 'certs/acaline.com.crt')),
+    fs.readFileSync(path.join(__dirname, 'CA_chains/enduser-example.com.chain'))
+  )
+} catch (err) {
+  assert.throws(assert.ifError.bind(null, err), /cb should be function/)
+}

@@ -6,6 +6,32 @@ exports.getAltNames = x509.getAltNames;
 exports.getSubject = x509.getSubject;
 exports.getIssuer = x509.getIssuer;
 
+exports.verifyFromStr = function(certStr, caBundleStr, cb) {
+  if (typeof cb !== 'function') {
+    throw new Error('cb should be function');
+  }
+  if (certStr instanceof Buffer) {
+    certStr = certStr.toString();
+  } else if (typeof certStr !== 'string') {
+    cb(new Error('certStr should be string or buffer'));
+    return;
+  }
+  if (caBundleStr instanceof Buffer) {
+    caBundleStr = caBundleStr.toString();
+  } else if (typeof caBundleStr !== 'string') {
+    cb(new Error('caBundleStr should be string or buffer'));
+    return;
+  }
+  var caughtErr = null;
+  try {
+    x509.verify_from_str(certStr, caBundleStr);
+  } catch (verificationError) {
+    caughtErr = verificationError;
+  } finally {
+    cb(caughtErr);
+  }
+};
+
 exports.verify = function(certPath, CABundlePath, cb) {
   if (!certPath) {
     throw new TypeError('Certificate path is required');
@@ -29,8 +55,7 @@ exports.verify = function(certPath, CABundlePath, cb) {
       try {
         x509.verify(certPath, CABundlePath);
         cb(null);
-      }
-      catch (verificationError) {
+      } catch (verificationError) {
         cb(verificationError);
       }
     });
