@@ -16,6 +16,10 @@ npm install
 npm test
 ```
 
+### Windows prerequisites
+
+You will need Win32 OpenSSL 1.0.2 installed in a specific directory (`C:\OpenSSL-Win32` or `C:\OpenSSL-Win64` depending on the architecture). You can download it from the [Win32 OpenSSL homepage](http://slproweb.com/products/Win32OpenSSL.html). Make sure to choose v1.0.2 over v1.1.0 (the latter has no `libeay32.dll`), and the normal version over the one marked as "light". 
+
 ## Usage
 Reading from a file:
 ```js
