@@ -28,6 +28,7 @@ static const char *MISSING[4][2] = {
 };
 
 std::string parse_args(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
   if (info.Length() == 0) {
     Nan::ThrowTypeError("Must provide a certificate string.");
     return std::string();
@@ -38,12 +39,12 @@ std::string parse_args(const Nan::FunctionCallbackInfo<v8::Value>& info) {
     return std::string();
   }
 
-  if (info[0]->ToString()->Length() == 0) {
+  if (info[0]->ToString(isolate)->Length() == 0) {
     Nan::ThrowTypeError("Certificate argument provided, but left blank.");
     return std::string();
   }
 
-  return *Nan::Utf8String(info[0]->ToString());
+  return *Nan::Utf8String(info[0]->ToString(isolate));
 }
 
 
@@ -51,9 +52,10 @@ std::string parse_args(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 NAN_METHOD(verify) {
   Nan::HandleScope scope;
   OpenSSL_add_all_algorithms();
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-  std::string cert_path = *String::Utf8Value(info[0]->ToString());
-  std::string ca_bundlestr = *String::Utf8Value(info[1]->ToString());
+  std::string cert_path = *String::Utf8Value(isolate, info[0]->ToString(isolate));
+  std::string ca_bundlestr = *String::Utf8Value(isolate, info[1]->ToString(isolate));
 
   X509_STORE *store = NULL;
   X509_STORE_CTX *verify_ctx = NULL;
@@ -112,10 +114,11 @@ NAN_METHOD(verify) {
 NAN_METHOD(get_altnames) {
   Nan::HandleScope scope;
   std::string parsed_arg = parse_args(info);
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
   if(parsed_arg.size() == 0) {
     info.GetReturnValue().SetUndefined();
   }
-  Local<Object> exports(try_parse(parsed_arg)->ToObject());
+  Local<Object> exports(try_parse(parsed_arg)->ToObject(isolate));
   Local<Value> key = Nan::New<String>("altNames").ToLocalChecked();
   info.GetReturnValue().Set(
     Nan::Get(exports, key).ToLocalChecked());
@@ -125,10 +128,11 @@ NAN_METHOD(get_altnames) {
 NAN_METHOD(get_subject) {
   Nan::HandleScope scope;
   std::string parsed_arg = parse_args(info);
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
   if(parsed_arg.size() == 0) {
     info.GetReturnValue().SetUndefined();
   }
-  Local<Object> exports(try_parse(parsed_arg)->ToObject());
+  Local<Object> exports(try_parse(parsed_arg)->ToObject(isolate));
   Local<Value> key = Nan::New<String>("subject").ToLocalChecked();
   info.GetReturnValue().Set(
     Nan::Get(exports, key).ToLocalChecked());
@@ -137,11 +141,12 @@ NAN_METHOD(get_subject) {
 
 NAN_METHOD(get_issuer) {
   Nan::HandleScope scope;
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
   std::string parsed_arg = parse_args(info);
   if(parsed_arg.size() == 0) {
     info.GetReturnValue().SetUndefined();
   }
-  Local<Object> exports(try_parse(parsed_arg)->ToObject());
+  Local<Object> exports(try_parse(parsed_arg)->ToObject(isolate));
   Local<Value> key = Nan::New<String>("issuer").ToLocalChecked();
   info.GetReturnValue().Set(
     Nan::Get(exports, key).ToLocalChecked());
@@ -150,11 +155,12 @@ NAN_METHOD(get_issuer) {
 
 NAN_METHOD(parse_cert) {
   Nan::HandleScope scope;
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
   std::string parsed_arg = parse_args(info);
   if(parsed_arg.size() == 0) {
     info.GetReturnValue().SetUndefined();
   }
-  Local<Object> exports(try_parse(parsed_arg)->ToObject());
+  Local<Object> exports(try_parse(parsed_arg)->ToObject(isolate));
   info.GetReturnValue().Set(exports);
   ERR_clear_error();
 }
@@ -444,6 +450,7 @@ Local<Value> parse_serial(ASN1_INTEGER *serial) {
 
 Local<Value> parse_date(ASN1_TIME *date) {
   Nan::EscapableHandleScope scope;
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
   BIO *bio;
   BUF_MEM *bm;
   char formatted[64];
@@ -459,7 +466,7 @@ Local<Value> parse_date(ASN1_TIME *date) {
 
   Local<Object> global = Nan::GetCurrentContext()->Global();
   Local<Object> DateObject = Nan::Get(global,
-    Nan::New<String>("Date").ToLocalChecked()).ToLocalChecked()->ToObject();
+    Nan::New<String>("Date").ToLocalChecked()).ToLocalChecked()->ToObject(isolate);
   return scope.Escape(Nan::CallAsConstructor(DateObject, 1, args).ToLocalChecked());
 }
 
