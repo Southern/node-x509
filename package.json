@@ -13,10 +13,15 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git@github.com:Southern/node-x509.git"
+    "url": "git@github.com:ghaiklor/node-x509.git"
   },
   "scripts": {
     "test": "node test/test"
+  },
+  "publishConfig": {
+    "tag": "latest",
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
   },
   "license": "MIT",
   "dependencies": {

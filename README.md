@@ -1,13 +1,16 @@
 node-x509
 =========
 
-[![Build Status](https://travis-ci.org/Southern/node-x509.svg?branch=master)](https://travis-ci.org/Southern/node-x509)
+_Forked from <https://github.com/Southern/node-x509>._
+_The reason behind this is that original package does not build on Node.js 12._
+
+[![Build Status](https://travis-ci.com/ghaiklor/node-x509.svg?branch=master)](https://travis-ci.com/ghaiklor/node-x509)
 
 Simple X509 certificate parser.
 
 ## Installation
 
-From NPM *(recommended)*: `npm install x509`
+From NPM *(recommended)*: `npm install @ghaiklor/x509`
 
 Building and testing from source:
 ```
@@ -19,14 +22,14 @@ npm test
 ## Usage
 Reading from a file:
 ```js
-const x509 = require('x509');
+const x509 = require('@ghaiklor/x509');
 var issuer = x509.getIssuer(__dirname + '/certs/your.crt');
 ```
 
 Reading from a string:
 ```js
 const fs = require('fs'),
-      x509 = require('x509');
+      x509 = require('@ghaiklor/x509');
 var issuer = x509.getIssuer(fs.readFileSync('./certs/your.crt').toString());
 ```
 

@@ -1,7 +1,7 @@
 var x509 = require('../index'),
-    fs = require('fs'),
-    path = require('path'),
-    assert = require('assert');
+  fs = require('fs'),
+  path = require('path'),
+  assert = require('assert');
 
 // All cert files should read without throwing an error.
 // Simple enough test, no?
@@ -42,7 +42,7 @@ x509.verify(
 x509.verify(
   path.join(__dirname, 'certs/equifax.crt'),
   path.join(__dirname, '/test.js'),
-  function(err, result) {
+  function (err, result) {
     assert.throws(assert.ifError.bind(null, err), /Error loading CA chain file/)
   }
 );
@@ -50,7 +50,7 @@ x509.verify(
 x509.verify(
   path.join(__dirname, '/test.js'),
   path.join(__dirname, 'CA_chains/enduser-example.com.chain'),
-  function(err, result) {
+  function (err, result) {
     assert.throws(assert.ifError.bind(null, err), /Failed to load cert/)
   }
 );

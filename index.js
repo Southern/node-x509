@@ -6,7 +6,7 @@ exports.getAltNames = x509.getAltNames;
 exports.getSubject = x509.getSubject;
 exports.getIssuer = x509.getIssuer;
 
-exports.verify = function(certPath, CABundlePath, cb) {
+exports.verify = function (certPath, CABundlePath, cb) {
   if (!certPath) {
     throw new TypeError('Certificate path is required');
   }
@@ -14,13 +14,13 @@ exports.verify = function(certPath, CABundlePath, cb) {
     throw new TypeError('CA Bundle path is required');
   }
 
-  fs.stat(certPath, function(certPathErr) {
+  fs.stat(certPath, function (certPathErr) {
 
     if (certPathErr) {
       return cb(certPathErr);
     }
 
-    fs.stat(CABundlePath, function(bundlePathErr) {
+    fs.stat(CABundlePath, function (bundlePathErr) {
 
       if (bundlePathErr) {
         return cb(bundlePathErr);
@@ -38,7 +38,7 @@ exports.verify = function(certPath, CABundlePath, cb) {
 };
 
 
-exports.parseCert = function(path) {
+exports.parseCert = function (path) {
   var ret = x509.parseCert(path);
   var exts = {};
   for (var key in ret.extensions) {
