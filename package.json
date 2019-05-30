@@ -1,8 +1,15 @@
 {
-  "name": "x509",
-  "version": "0.3.4",
+  "name": "@ghaiklor/x509",
+  "version": "1.0.0",
   "description": "Simple X509 certificate parser.",
   "author": "Colton Baker",
+  "contributors": [
+    {
+      "name": "Eugene Obrezkov",
+      "email": "ghaiklor@gmail.com",
+      "url": "https://ghaiklor.com"
+    }
+  ],
   "main": "index.js",
   "repository": {
     "type": "git",
