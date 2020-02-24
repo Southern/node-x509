@@ -37,13 +37,13 @@ std::string parse_args(const Nan::FunctionCallbackInfo<v8::Value>& info) {
     Nan::ThrowTypeError("Certificate must be a string.");
     return std::string();
   }
-
-  if (info[0]->ToString()->Length() == 0) {
+  std::string val = *Nan::Utf8String(info[0]);
+  if (val.length() == 0) {
     Nan::ThrowTypeError("Certificate argument provided, but left blank.");
     return std::string();
   }
 
-  return *Nan::Utf8String(info[0]->ToString());
+  return val;
 }
 
 
@@ -52,8 +52,8 @@ NAN_METHOD(verify) {
   Nan::HandleScope scope;
   OpenSSL_add_all_algorithms();
 
-  std::string cert_path = *String::Utf8Value(info[0]->ToString());
-  std::string ca_bundlestr = *String::Utf8Value(info[1]->ToString());
+  std::string cert_path = *Nan::Utf8String(info[0]);
+  std::string ca_bundlestr = *Nan::Utf8String(info[1]);
 
   X509_STORE *store = NULL;
   X509_STORE_CTX *verify_ctx = NULL;
@@ -115,7 +115,7 @@ NAN_METHOD(get_altnames) {
   if(parsed_arg.size() == 0) {
     info.GetReturnValue().SetUndefined();
   }
-  Local<Object> exports(try_parse(parsed_arg)->ToObject());
+  Local<Object> exports(try_parse(parsed_arg)->ToObject(Nan::GetCurrentContext()).ToLocalChecked());
   Local<Value> key = Nan::New<String>("altNames").ToLocalChecked();
   info.GetReturnValue().Set(
     Nan::Get(exports, key).ToLocalChecked());
@@ -128,7 +128,7 @@ NAN_METHOD(get_subject) {
   if(parsed_arg.size() == 0) {
     info.GetReturnValue().SetUndefined();
   }
-  Local<Object> exports(try_parse(parsed_arg)->ToObject());
+  Local<Object> exports(try_parse(parsed_arg)->ToObject(Nan::GetCurrentContext()).ToLocalChecked());
   Local<Value> key = Nan::New<String>("subject").ToLocalChecked();
   info.GetReturnValue().Set(
     Nan::Get(exports, key).ToLocalChecked());
@@ -141,7 +141,7 @@ NAN_METHOD(get_issuer) {
   if(parsed_arg.size() == 0) {
     info.GetReturnValue().SetUndefined();
   }
-  Local<Object> exports(try_parse(parsed_arg)->ToObject());
+  Local<Object> exports(try_parse(parsed_arg)->ToObject(Nan::GetCurrentContext()).ToLocalChecked());
   Local<Value> key = Nan::New<String>("issuer").ToLocalChecked();
   info.GetReturnValue().Set(
     Nan::Get(exports, key).ToLocalChecked());
@@ -154,7 +154,7 @@ NAN_METHOD(parse_cert) {
   if(parsed_arg.size() == 0) {
     info.GetReturnValue().SetUndefined();
   }
-  Local<Object> exports(try_parse(parsed_arg)->ToObject());
+  Local<Object> exports(try_parse(parsed_arg)->ToObject(Nan::GetCurrentContext()).ToLocalChecked());
   info.GetReturnValue().Set(exports);
   ERR_clear_error();
 }
@@ -459,7 +459,8 @@ Local<Value> parse_date(ASN1_TIME *date) {
 
   Local<Object> global = Nan::GetCurrentContext()->Global();
   Local<Object> DateObject = Nan::Get(global,
-    Nan::New<String>("Date").ToLocalChecked()).ToLocalChecked()->ToObject();
+    Nan::New<String>("Date").ToLocalChecked()).ToLocalChecked()
+      ->ToObject(Nan::GetCurrentContext()).ToLocalChecked();
   return scope.Escape(Nan::CallAsConstructor(DateObject, 1, args).ToLocalChecked());
 }
 
