@@ -13,20 +13,20 @@ void init(Local<Object> exports) {
 
   Nan::Set(exports,
     Nan::New<String>("verify").ToLocalChecked(),
-    Nan::New<FunctionTemplate>(verify)->GetFunction());
+    Nan::New<FunctionTemplate>(verify)->GetFunction(Nan::GetCurrentContext()).ToLocalChecked());
 
   Nan::Set(exports,
     Nan::New<String>("getAltNames").ToLocalChecked(),
-    Nan::New<FunctionTemplate>(get_altnames)->GetFunction());
+    Nan::New<FunctionTemplate>(get_altnames)->GetFunction(Nan::GetCurrentContext()).ToLocalChecked());
   Nan::Set(exports,
     Nan::New<String>("getSubject").ToLocalChecked(),
-    Nan::New<FunctionTemplate>(get_subject)->GetFunction());
+    Nan::New<FunctionTemplate>(get_subject)->GetFunction(Nan::GetCurrentContext()).ToLocalChecked());
   Nan::Set(exports,
     Nan::New<String>("getIssuer").ToLocalChecked(),
-    Nan::New<FunctionTemplate>(get_issuer)->GetFunction());
+    Nan::New<FunctionTemplate>(get_issuer)->GetFunction(Nan::GetCurrentContext()).ToLocalChecked());
   Nan::Set(exports,
     Nan::New<String>("parseCert").ToLocalChecked(),
-    Nan::New<FunctionTemplate>(parse_cert)->GetFunction());
+    Nan::New<FunctionTemplate>(parse_cert)->GetFunction(Nan::GetCurrentContext()).ToLocalChecked());
 }
 
 NODE_MODULE(x509, init)
