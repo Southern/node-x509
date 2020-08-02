@@ -1,6 +1,6 @@
 {
   "name": "@ghaiklor/x509",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Simple X509 certificate parser",
   "main": "index.js",
   "license": "MIT",
