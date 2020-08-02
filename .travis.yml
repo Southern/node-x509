@@ -1,27 +1,10 @@
-os:
-  - linux
-
+language: node_js
+node_js:
+  - node
+  - lts/*
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
       - g++-4.8
-
-language: node_js
-node_js:
-  - "stable"
-
-install:
-  - export CXX=g++-4.8
-  - $CXX --version
-  - npm i
-
-before_install:
-  - npm install -g node-gyp
-  - rm -rf ~/.node-gyp/
-
-notifications:
-  email: false
-
-sudo: false

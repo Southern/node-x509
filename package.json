@@ -1,18 +1,58 @@
 {
-  "name": "x509",
-  "version": "0.3.4",
-  "description": "Simple X509 certificate parser.",
-  "author": "Colton Baker",
+  "name": "@ghaiklor/x509",
+  "version": "1.0.0",
+  "description": "Simple X509 certificate parser",
   "main": "index.js",
+  "license": "MIT",
+  "homepage": "https://github.com/ghaiklor/node-x509#readme",
+  "author": "Colton Baker",
+  "contributors": [
+    {
+      "email": "ghaiklor@gmail.com",
+      "name": "Eugene Obrezkov",
+      "url": "https://ghaiklor.com"
+    }
+  ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:Southern/node-x509.git"
+    "url": "git@github.com:ghaiklor/node-x509.git"
+  },
+  "bugs": {
+    "email": "ghaiklor@gmail.com",
+    "url": "https://github.com/ghaiklor/node-x509/issues"
+  },
+  "keywords": [
+    "x509",
+    "parser",
+    "openssl",
+    "certificate",
+    "cert"
+  ],
+  "files": [
+    "include",
+    "src",
+    "binding.gyp",
+    "index.js"
+  ],
+  "engines": {
+    "node": ">=10"
   },
   "scripts": {
-    "test": "node test/test"
+    "lint": "eslint --fix .",
+    "prepublishOnly": "npm run lint && npm run test",
+    "test": "jest"
   },
-  "license": "MIT",
   "dependencies": {
     "nan": "2.14.1"
+  },
+  "devDependencies": {
+    "eslint": "7.6.0",
+    "eslint-config-standard": "14.1.1",
+    "eslint-plugin-import": "2.22.0",
+    "eslint-plugin-jest": "23.20.0",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-promise": "4.2.1",
+    "eslint-plugin-standard": "4.0.1",
+    "jest": "26.2.2"
   }
 }
